@@ -85,6 +85,10 @@ const friendService = {
       if (!(await friendRepository.areFriends(userId, invitation.senderId))) {
         throw new Error("FRIEND_REQUIRED");
       }
+      const bots = await botRepository.findByUserId(userId);
+      if (!bots.some((bot) => bot.isActive)) {
+        throw new Error("ROOM_REQUIRES_ACTIVE_BOT");
+      }
       if (
         (await roomRepository.findActiveRoomForUser(userId)) ||
         (await roomRepository.findActiveRoomForUser(invitation.senderId))
@@ -200,7 +204,6 @@ const friendService = {
       ]);
       lastSocialCleanupAt = Date.now();
     }
-    await friendRepository.expireElapsedAcceptedChallenges(userId, new Date());
     return friendRepository.getNotifications(userId);
   },
 };

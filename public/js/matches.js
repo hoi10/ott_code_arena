@@ -274,17 +274,18 @@ async function createRoom(event) {
 
 async function expireChallengeWithoutBot(invitationId) {
   sessionStorage.setItem(`ott-skipped-duel-challenge:${invitationId}`, "1");
-  void window.api
-    .post(
+  let notification =
+    "Bạn cần có ít nhất một bot đang hoạt động để tham gia đấu.";
+  try {
+    await window.api.post(
       `/friends/invitations/${encodeURIComponent(invitationId)}/expire-without-bot`
-    )
-    .catch((error) => {
-      console.error("Không thể cập nhật trạng thái lời mời thiếu bot:", error);
-    });
-  showSocialToast(
-    "Bạn cần có ít nhất một bot đang hoạt động để tham gia đấu. Lời mời này đã kết thúc.",
-    true
-  );
+    );
+    notification += " Lời mời này đã kết thúc.";
+  } catch (error) {
+    console.error("Không thể cập nhật trạng thái lời mời thiếu bot:", error);
+    notification += " Không thể cập nhật trạng thái lời mời, hãy thử lại.";
+  }
+  showSocialToast(notification, true);
   roomPage.challengeInvitationId = null;
   document.getElementById("challengeInvitationId").value = "";
   const url = new URL(window.location.href);

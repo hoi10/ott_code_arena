@@ -18,24 +18,6 @@
     const botId = params.get("id");
     const isEditMode = Boolean(botId);
     const draftKey = "ott-code-arena-bot-draft";
-    const starterCode = [
-        "const moves = input.legalMoves || [];",
-        "",
-        "// Ưu tiên ăn quân; nếu chưa có thì tiến gần nhà đối phương.",
-        "const bestMove = [...moves].sort((a, b) => {",
-        "  const captureA = a.capturePieceId ? 1 : 0;",
-        "  const captureB = b.capturePieceId ? 1 : 0;",
-        "  if (captureA !== captureB) return captureB - captureA;",
-        "",
-        "  const target = input.target;",
-        "  const distanceA = Math.abs(a.to.x - target.x) + Math.abs(a.to.y - target.y);",
-        "  const distanceB = Math.abs(b.to.x - target.x) + Math.abs(b.to.y - target.y);",
-        "  return distanceA - distanceB;",
-        "})[0];",
-        "",
-        "if (!bestMove) return null;",
-        "return { pieceId: bestMove.pieceId, to: bestMove.to };"
-    ].join("\n");
 
     function showMessage(message, type) {
         messageBox.textContent = message;
@@ -92,10 +74,7 @@
 
         try {
             const savedDraft = localStorage.getItem(draftKey);
-            if (!savedDraft) {
-                codeInput.value = starterCode;
-                return;
-            }
+            if (!savedDraft) return;
 
             const draft = JSON.parse(savedDraft);
             if (typeof draft.name === "string") nameInput.value = draft.name;
@@ -106,7 +85,6 @@
             if (draft.visibility === "public") setVisibility(true);
         } catch (error) {
             console.warn("Không thể đọc bản nháp.", error);
-            codeInput.value = starterCode;
         }
     }
 

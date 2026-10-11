@@ -254,18 +254,6 @@ const friendRepository = {
     return { expired: true };
   },
 
-  async expireElapsedAcceptedChallenges(senderId, now) {
-    return prisma.socialInvitation.updateMany({
-      where: {
-        senderId,
-        kind: "duel",
-        status: "accepted",
-        expiresAt: { lte: now },
-      },
-      data: { status: "expired" },
-    });
-  },
-
   async getNotifications(userId) {
     const now = new Date();
     await prisma.socialInvitation.updateMany({

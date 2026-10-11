@@ -16,7 +16,6 @@ const store = {
   invitations: new Map(),
   nextInvitationId: 99,
   lastPresence: null,
-  expiredElapsedChallenges: null,
   async searchUsers() {
     return [{ id: 4, username: "player", presenceSessions: [{ id: 1 }] }];
   },
@@ -87,9 +86,6 @@ const store = {
   async getNotifications() {
     return { friendRequests: [], invitations: [], acceptedChallenges: [] };
   },
-  async expireElapsedAcceptedChallenges(senderId, now) {
-    store.expiredElapsedChallenges = { senderId, now };
-  },
   async cleanupStalePresence() {},
   async expireInvitations() {},
 };
@@ -113,8 +109,9 @@ const roomRepository = {
 
 const botRepository = {
   bots: [{ isActive: true }],
-  async findByUserId() {
-    return botRepository.bots;
+  botsByUserId: new Map(),
+  async findByUserId(userId) {
+    return botRepository.botsByUserId.get(userId) ?? botRepository.bots;
   },
 };
 
@@ -163,8 +160,20 @@ test("duel challenges expire ten seconds after creation and can be accepted", as
   assert.equal(store.invitations.get(99).status, "accepted");
 });
 
+test("a friend without an active bot cannot accept a duel challenge", async () => {
+  botRepository.botsByUserId.set(4, []);
+  const { invitationId } = await friendService.sendChallenge(7, 4);
+
+  await assert.rejects(
+    () => friendService.respondChallenge(invitationId, 4, true),
+    { message: "ROOM_REQUIRES_ACTIVE_BOT" }
+  );
+  assert.equal(store.invitations.get(invitationId).status, "pending");
+  botRepository.botsByUserId.delete(4);
+});
+
 test("sender without an active bot can expire an accepted duel challenge", async () => {
-  botRepository.bots = [];
+  botRepository.botsByUserId.set(7, []);
   const { invitationId } = await friendService.sendChallenge(7, 4);
   await friendService.respondChallenge(invitationId, 4, true);
 
@@ -173,6 +182,7 @@ test("sender without an active bot can expire an accepted duel challenge", async
     { expired: true }
   );
   assert.equal(store.invitations.get(invitationId).status, "expired");
+  botRepository.botsByUserId.delete(7);
 });
 
 test("sender with an active bot cannot expire an accepted duel challenge this way", async () => {
@@ -187,16 +197,15 @@ test("sender with an active bot cannot expire an accepted duel challenge this wa
   assert.equal(store.invitations.get(invitationId).status, "accepted");
 });
 
-test("notification polling expires accepted challenges after their invitation deadline", async () => {
-  const notifications = await friendService.getNotifications(7);
+test("accepted duel challenges remain available after their response deadline", async () => {
+  const { invitationId } = await friendService.sendChallenge(7, 4);
+  await friendService.respondChallenge(invitationId, 4, true);
+  store.invitations.get(invitationId).expiresAt = new Date(Date.now() - 1);
 
-  assert.deepEqual(notifications, {
-    friendRequests: [],
-    invitations: [],
-    acceptedChallenges: [],
-  });
-  assert.equal(store.expiredElapsedChallenges.senderId, 7);
-  assert.ok(store.expiredElapsedChallenges.now instanceof Date);
+  await friendService.getNotifications(7);
+
+  assert.equal(store.invitations.get(invitationId).status, "accepted");
+  assert.equal(await friendService.createRoomFromChallenge(7, invitationId), 4);
 });
 
 test("room invitations expire after ten seconds and join without a password", async () => {
