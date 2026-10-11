@@ -1,75 +1,80 @@
 # OTT Code Arena
 
-OTT Code Arena lets players write JavaScript bots that choose moves in a
-Kéo-Búa-Bao board match.
+OTT Code Arena là nền tảng để người chơi viết bot JavaScript tự chọn nước đi
+trong các trận Kéo · Búa · Bao trên bàn cờ.
 
-## Run locally
+## Chạy ứng dụng trên máy cá nhân
 
-1. Copy `.env.example` to `.env` and set `DATABASE_URL` and a `JWT_SECRET` of
-   at least 32 characters.
-2. Apply database migrations with `npx prisma migrate deploy`.
-3. Start the app with `npm start`.
-4. Run automated tests with `npm test`.
+1. Sao chép `.env.example` thành `.env`, sau đó cấu hình `DATABASE_URL` và
+   `JWT_SECRET` có ít nhất 32 ký tự.
+2. Áp dụng các migration cho cơ sở dữ liệu bằng `npx prisma migrate deploy`.
+3. Khởi động ứng dụng bằng `npm start`.
+4. Chạy các bài kiểm thử tự động bằng `npm test`.
 
-## Deploy publicly with Render and Railway
+## Đưa ứng dụng lên Internet bằng Render và Railway
 
-The repository includes a Render Blueprint in `render.yaml`. It runs this
-Express application as a single web service, serves both the frontend and API,
-applies Prisma migrations on startup, and checks `/api/health`.
+Kho mã nguồn có cấu hình Render Blueprint trong `render.yaml`. Cấu hình này
+chạy ứng dụng Express dưới dạng một dịch vụ web duy nhất, phục vụ cả giao diện
+và API, áp dụng migration Prisma khi khởi động, đồng thời kiểm tra trạng thái
+qua `/api/health`.
 
-1. Push this repository to a Git provider and create a Railway MySQL service.
-2. In Railway, enable public TCP access for MySQL and copy its public host,
-   port, database name, username, and password. Do not use Railway's private
-   hostname from Render.
-3. In Render, create a new Blueprint from the repository. Set `DATABASE_URL`
-   to `mysql://USER:PASSWORD@HOST:PORT/DATABASE` using Railway's public TCP
-   connection details. URL-encode special characters in the username or
-   password. Render generates `JWT_SECRET` for the service.
-4. Deploy and wait for `/api/health` to report healthy. Render runs
-   `prisma migrate deploy` before starting the app; keep the `prisma/migrations`
-   directory in Git.
+1. Đẩy kho mã nguồn này lên một nhà cung cấp Git và tạo dịch vụ MySQL trên
+   Railway.
+2. Trên Railway, bật quyền truy cập TCP công khai cho MySQL, sau đó lấy máy chủ,
+   cổng, tên cơ sở dữ liệu, tên người dùng và mật khẩu dùng cho kết nối công
+   khai. Không dùng tên máy chủ riêng của Railway trong cấu hình Render.
+3. Trên Render, tạo Blueprint mới từ kho mã nguồn. Đặt `DATABASE_URL` theo định
+   dạng `mysql://USER:PASSWORD@HOST:PORT/DATABASE`, sử dụng thông tin kết nối
+   TCP công khai từ Railway. Nếu tên người dùng hoặc mật khẩu có ký tự đặc biệt,
+   hãy mã hóa URL các ký tự đó. Render sẽ tự tạo `JWT_SECRET` cho dịch vụ.
+4. Triển khai và chờ `/api/health` báo trạng thái khỏe mạnh. Render chạy
+   `prisma migrate deploy` trước khi khởi động ứng dụng; cần giữ thư mục
+   `prisma/migrations` trong Git.
 
-The Blueprint uses Render's free web-service plan. Free instances can spin down
-when idle, so the app and its in-process room scheduler may pause until the next
-request wakes the service. Keep a single application instance: active room
-schedulers are process-local and are not coordinated between replicas. Railway
-database usage may incur charges according to the selected Railway plan.
-Never commit `.env` or production credentials; configure secrets in the hosting
-provider dashboards.
+Blueprint sử dụng gói dịch vụ web miễn phí của Render. Dịch vụ miễn phí có thể
+tạm dừng khi không hoạt động; ứng dụng và bộ lập lịch phòng đấu chạy trong tiến
+trình đó cũng có thể ngưng cho đến khi có yêu cầu tiếp theo đánh thức dịch vụ.
+Chỉ chạy một bản ứng dụng: bộ lập lịch phòng đấu hiện lưu trạng thái trong từng
+tiến trình và chưa điều phối giữa nhiều bản sao. Railway có thể tính phí cơ sở
+dữ liệu tùy theo gói đã chọn. Không đưa `.env` hoặc thông tin xác thực môi
+trường production vào Git; hãy cấu hình các giá trị bí mật trên trang quản lý
+của nhà cung cấp dịch vụ.
 
-## Game rules
+## Luật chơi
 
-- The board is 9×9. A1 is the bottom-left square and I9 is the top-right.
-- Each side receives nine pieces placed randomly in the 4×4 corner area around
-  its home square. The home square itself remains empty. Each side starts with
-  at least one Búa, one Kéo, and one Bao.
-- A turn moves one piece by one square in any of the eight directions.
-- Búa captures Kéo, Kéo captures Bao, and Bao captures Búa. Pieces of the same
-  type block each other; a losing piece cannot enter an enemy-occupied square.
-  Friendly pieces always block movement.
-- An invalid move leaves the board unchanged and passes the turn.
-- A player wins by moving a piece onto the opponent's home square or capturing
-  every opposing piece. Capturing all pieces of one type does not win the match.
-  A match is a draw after 1,000 turns if neither side has won.
-- The match engine enforces all rules. Bot source code only chooses a piece and
-  destination; it cannot change the board or rule configuration.
+- Bàn cờ có kích thước 9×9. Ô A1 nằm ở góc dưới bên trái, ô I9 nằm ở góc trên
+  bên phải.
+- Mỗi bên có chín quân được đặt ngẫu nhiên trong vùng 4×4 ở góc quanh nhà của
+  mình. Ô nhà luôn để trống. Mỗi bên bắt đầu với ít nhất một quân Búa, một quân
+  Kéo và một quân Bao.
+- Mỗi lượt, người chơi di chuyển một quân một ô theo một trong tám hướng.
+- Búa ăn Kéo, Kéo ăn Bao, Bao ăn Búa. Hai quân cùng loại chặn nhau; quân đang
+  thua không thể đi vào ô có quân đối phương. Quân cùng phe luôn chặn đường
+  nhau.
+- Nước đi không hợp lệ không làm thay đổi bàn cờ và lượt được chuyển cho đối
+  phương.
+- Người chơi thắng khi đưa một quân vào nhà đối phương hoặc ăn hết toàn bộ quân
+  của đối phương. Ăn hết quân của một loại không làm trận đấu kết thúc. Nếu
+  chưa có bên thắng sau 1.000 lượt, trận đấu hòa.
+- Bộ máy trận đấu thực thi toàn bộ luật. Mã nguồn bot chỉ chọn quân và ô đích,
+  không thể thay đổi bàn cờ hoặc cấu hình luật.
 
-## Bot code contract
+## Quy ước viết mã bot
 
-Bot source code is a synchronous JavaScript function body. The engine calls it
-as `function(input) { ... }`. `input` contains:
+Mã nguồn bot là phần thân của một hàm JavaScript chạy đồng bộ. Bộ máy gọi mã
+theo dạng `function(input) { ... }`. Đối tượng `input` gồm:
 
-- `playerId`, `turn`, and `boardSize`.
-- `home` and `target` coordinates for the bot.
-- `pieces.own` and `pieces.opponent`, with each piece's `id`, `type`, `x`, and
-  `y`.
-- `legalMoves`, the exact moves currently allowed by the rules. Each move has
-  a `pieceId`, destination `to: { x, y, name }`, and optional capture details.
-- `rules`, containing the piece types, capture cycle, movement rule, and
-  invalid-move behavior.
+- `playerId`, `turn` và `boardSize`.
+- Tọa độ `home` và `target` của bot.
+- `pieces.own` và `pieces.opponent`; mỗi quân có các thuộc tính `id`, `type`,
+  `x` và `y`.
+- `legalMoves`, danh sách chính xác các nước đi hợp lệ ở lượt hiện tại. Mỗi
+  nước đi có `pieceId`, ô đích `to: { x, y, name }` và thông tin ăn quân nếu
+  có.
+- `rules`, gồm các loại quân, vòng ăn quân, quy tắc di chuyển và cách xử lý
+  nước đi không hợp lệ.
 
-Return one move from `legalMoves`:
-
+Hãy trả về một nước đi trong `legalMoves`:
 ```js
 const moves = input.legalMoves || [];
 const bestMove = [...moves].sort((a, b) => {
@@ -89,33 +94,35 @@ if (!bestMove) return null;
 return { pieceId: bestMove.pieceId, to: bestMove.to };
 ```
 
-Returning `null` or an invalid move consumes the bot's turn without moving a
-piece. Use **Kiểm tra nước đi** in the bot editor to execute the code against a
-sample board before saving.
+Trả về `null` hoặc một nước đi không hợp lệ sẽ tiêu tốn lượt của bot nhưng
+không di chuyển quân. Trước khi lưu, hãy dùng nút **Kiểm tra nước đi** trong
+trình soạn thảo bot để chạy thử mã trên một bàn cờ mẫu.
 
-## Bot and match APIs
+## API về bot và trận đấu
 
-Authenticated routes are under `/api`:
+Các API yêu cầu đăng nhập nằm dưới đường dẫn `/api`:
 
-- `POST /bots` creates a bot; `PATCH /bots/:id` updates one.
-- `POST /bots/test` runs unsaved source code on a sample board.
-- `GET /bots` lists the signed-in user's bots; `GET /bots/public` lists active,
-  public opponents without exposing their source.
-- `POST /matches` creates a match using `{ "botIds": [myBotId, opponentBotId] }`.
-- `POST /matches/:id/run` runs exactly one bot turn and saves the board.
-- `PATCH /matches/:id/bot` accepts
-  `{ "participantId": 1, "botId": 2 }` to switch the player's active bot while
-  the opponent's turn is current. The replacement bot is used on the player's
-  next turn.
-- `GET /matches/:id` returns the saved board and turn history.
-- `GET /users/profile` and `PATCH /users/profile` read and update the signed-in
-  user's username; password hashes are never returned.
-- `GET /users/stats` returns bot, submission, match, and win counts.
-- `PATCH /users/password` changes the password after checking the current one.
-- `GET /submissions` returns the caller's paginated bot-test history, and
-  `POST /submissions` runs a saved bot or submitted JavaScript once on a fresh
-  sample board. Results are `accepted` (legal move), `rejected` (invalid move),
-  or `failed` (execution error); this is a code check, not a ranked match.
+- `POST /bots` tạo bot; `PATCH /bots/:id` cập nhật bot.
+- `POST /bots/test` chạy thử mã nguồn chưa lưu trên bàn cờ mẫu.
+- `GET /bots` liệt kê bot của người dùng đã đăng nhập; `GET /bots/public` liệt kê
+  các bot đối thủ công khai đang hoạt động mà không tiết lộ mã nguồn.
+- `POST /matches` tạo trận đấu bằng dữ liệu
+  `{ "botIds": [myBotId, opponentBotId] }`.
+- `POST /matches/:id/run` chạy đúng một lượt bot và lưu bàn cờ.
+- `PATCH /matches/:id/bot` nhận dữ liệu `{ "participantId": 1, "botId": 2 }`
+  để đổi bot đang dùng khi lượt hiện tại thuộc về đối phương. Bot mới sẽ được
+  dùng trong lượt tiếp theo của người chơi.
+- `GET /matches/:id` trả về bàn cờ đã lưu và lịch sử các lượt.
+- `GET /users/profile` và `PATCH /users/profile` đọc và cập nhật tên người dùng
+  đã đăng nhập; không bao giờ trả về mã băm mật khẩu.
+- `GET /users/stats` trả về số lượng bot, lượt gửi kiểm thử, trận đấu và trận
+  thắng.
+- `PATCH /users/password` đổi mật khẩu sau khi xác minh mật khẩu hiện tại.
+- `GET /submissions` trả về lịch sử kiểm thử bot có phân trang của người dùng;
+  `POST /submissions` chạy một lần bot đã lưu hoặc mã JavaScript được gửi lên
+  trên bàn cờ mẫu mới. Kết quả gồm `accepted` (nước đi hợp lệ), `rejected`
+  (nước đi không hợp lệ) hoặc `failed` (lỗi khi chạy). Đây là kiểm tra mã nguồn,
+  không phải trận đấu xếp hạng.
 
 ## Phòng đấu
 
@@ -160,5 +167,5 @@ thi đấu. Trong sảnh chờ, chủ phòng cũng có thể mời bạn bè đa
 phòng. Lời mời thi đấu và lời mời vào phòng chờ hết hạn sau 10 giây; lời mời kết
 bạn không tự hết hạn. Áp dụng schema mới bằng `npx prisma migrate deploy`.
 
-Email changes are not available until the application supports email
-verification. Password changes do not revoke JWT sessions on other devices.
+Chưa thể đổi địa chỉ email cho đến khi ứng dụng hỗ trợ xác minh email. Việc đổi
+mật khẩu hiện không thu hồi các phiên JWT trên thiết bị khác.
