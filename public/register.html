@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f8fc">
+
+  <title>Tạo tài khoản | Code Arena</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/auth.css">
+</head>
+
+<body class="auth-page">
+
+  <main class="auth-layout">
+
+    <!-- LEFT: BRANDING -->
+    <section class="auth-visual">
+
+      <a href="/index.html" class="brand auth-brand">
+        <div class="brand-icon">⚡</div>
+        <span>Code<span class="brand-highlight">Arena</span></span>
+      </a>
+
+      <div class="visual-content">
+
+        <div class="visual-badge">
+          <span class="visual-badge-dot"></span>
+          HÀNH TRÌNH CỦA BẠN BẮT ĐẦU TỪ ĐÂY
+        </div>
+
+        <h1>
+          Tự tạo bot của bạn.<br>
+          <span>Làm chủ đấu trường.</span><br>
+          Ghi dấu chiến thuật.
+        </h1>
+
+        <p class="visual-description">
+          Tham gia Code Arena để tạo bot thông minh, thử nghiệm chiến thuật,
+          so tài cùng người chơi khác và chinh phục đấu trường.
+        </p>
+
+        <div class="visual-showcase">
+
+          <div class="showcase-glow"></div>
+
+          <div class="showcase-card showcase-card-main">
+
+            <div class="showcase-card-header">
+              <div class="showcase-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+
+              <span class="showcase-file">your-journey.js</span>
+              <span class="showcase-live">● SẴN SÀNG</span>
+            </div>
+
+            <div class="code-preview">
+              <div>
+                <span class="code-line-number">01</span>
+                <span class="code-purple">const</span>
+                <span class="code-blue">player</span> = {
+              </div>
+
+              <div>
+                <span class="code-line-number">02</span>
+                &nbsp;&nbsp;<span class="code-green">mindset</span>:
+                <span class="code-orange">"competitive"</span>,
+              </div>
+
+              <div>
+                <span class="code-line-number">03</span>
+                &nbsp;&nbsp;<span class="code-green">skills</span>:
+                <span class="code-orange">"growing"</span>,
+              </div>
+
+              <div>
+                <span class="code-line-number">04</span>
+                &nbsp;&nbsp;<span class="code-green">mission</span>:
+                <span class="code-orange">"win"</span>
+              </div>
+
+              <div>
+                <span class="code-line-number">05</span>
+                };
+              </div>
+
+              <div class="code-output">
+                <span class="output-check">✓</span>
+                Đã sẵn sàng đón đối thủ mới!
+              </div>
+            </div>
+
+          </div>
+
+          <div class="floating-stat floating-stat-top">
+            <span class="floating-stat-icon">🚀</span>
+            <div>
+              <strong>Bắt đầu sáng tạo</strong>
+              <span>Bot đầu tiên đang chờ bạn</span>
+            </div>
+          </div>
+
+          <div class="floating-stat floating-stat-bottom">
+            <span class="floating-stat-icon">🏆</span>
+            <div>
+              <strong>So tài và chinh phục</strong>
+              <span>Mỗi trận đấu đều đáng giá</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="visual-footer">
+        <span>© 2026 Code Arena</span>
+        <span>Dành cho người thích tư duy. Tạo nên bởi những người mê so tài.</span>
+      </div>
+
+    </section>
+
+    <!-- RIGHT: REGISTER FORM -->
+    <section class="auth-form-section">
+
+      <div class="auth-form-container">
+
+        <div class="mobile-brand">
+          <a href="/index.html" class="brand">
+            <div class="brand-icon">⚡</div>
+            <span>Code<span class="brand-highlight">Arena</span></span>
+          </a>
+        </div>
+
+        <div class="auth-heading">
+
+          <div class="auth-heading-icon">✨</div>
+
+          <h2>Tạo tài khoản</h2>
+
+          <p>
+            Tham gia đấu trường và bắt đầu tạo bot đầu tiên của bạn.
+          </p>
+
+        </div>
+
+        <form id="registerForm" class="auth-form" novalidate>
+
+          <!-- NAME -->
+          <div class="form-group">
+
+            <label for="name">Tên người dùng</label>
+
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">👤</span>
+
+              <input
+                type="text"
+                id="name"
+                name="name"
+                placeholder="Bạn muốn mọi người gọi mình là gì?"
+                autocomplete="name"
+                minlength="2"
+                maxlength="50"
+                required
+              >
+            </div>
+
+          </div>
+
+          <!-- EMAIL -->
+          <div class="form-group">
+
+            <label for="email">Địa chỉ email</label>
+
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">✉</span>
+
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="ban@example.com"
+                autocomplete="email"
+                required
+              >
+            </div>
+
+          </div>
+
+          <!-- PASSWORD -->
+          <div class="form-group">
+
+            <label for="password">Mật khẩu</label>
+
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">🔒</span>
+
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Ít nhất 8 ký tự"
+                autocomplete="new-password"
+                minlength="8"
+                required
+              >
+
+              <button
+                type="button"
+                class="password-toggle"
+                id="togglePassword"
+                aria-label="Hiện mật khẩu"
+              >
+                Hiện
+              </button>
+            </div>
+
+            <div class="password-strength" id="passwordStrength">
+              <div class="strength-bars">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+
+              <span class="strength-label" id="strengthLabel">
+                Độ mạnh mật khẩu
+              </span>
+            </div>
+
+          </div>
+
+          <!-- CONFIRM PASSWORD -->
+          <div class="form-group">
+
+            <label for="confirmPassword">Xác nhận mật khẩu</label>
+
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">🔐</span>
+
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                placeholder="Nhập lại mật khẩu"
+                autocomplete="new-password"
+                minlength="8"
+                required
+              >
+
+              <button
+                type="button"
+                class="password-toggle"
+                id="toggleConfirmPassword"
+                aria-label="Hiện mật khẩu xác nhận"
+              >
+                Hiện
+              </button>
+            </div>
+
+          </div>
+
+          <!-- TERMS -->
+          <div class="form-options register-options">
+
+            <label class="checkbox-label">
+              <input type="checkbox" id="agreeTerms" required>
+              <span class="custom-checkbox"></span>
+
+              <span>
+                Tôi đồng ý với
+                <a href="#" id="termsLink" class="form-link">Điều khoản sử dụng</a>
+                và
+                <a href="#" id="privacyLink" class="form-link">Chính sách quyền riêng tư</a>.
+              </span>
+            </label>
+
+          </div>
+
+          <div
+            id="authMessage"
+            class="auth-message"
+            role="status"
+            aria-live="polite"
+            hidden
+          ></div>
+
+          <!-- SUBMIT -->
+          <button type="submit" class="btn btn-primary auth-submit">
+            <span>Tạo tài khoản</span>
+            <span class="submit-arrow">→</span>
+          </button>
+
+        </form>
+
+        <div class="auth-divider">
+          <span>THỬ THÁCH TIẾP THEO ĐANG CHỜ BẠN</span>
+        </div>
+
+        <p class="auth-switch">
+          Đã có tài khoản?
+          <a href="/login.html">Đăng nhập <span>→</span></a>
+        </p>
+
+        <div class="auth-security-note">
+          <span>🔐</span>
+          Tài khoản và dữ liệu của bạn luôn được bảo vệ.
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="/js/api.js" defer></script>
+  <script src="/js/auth.js" defer></script>
+  <script src="/js/register.js" defer></script>
+  <!-- <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const passwordInput = document.getElementById("password");
+      const confirmPasswordInput = document.getElementById("confirmPassword");
+
+      const togglePassword = document.getElementById("togglePassword");
+      const toggleConfirmPassword = document.getElementById(
+        "toggleConfirmPassword"
+      );
+
+      const strengthContainer = document.getElementById("passwordStrength");
+      const strengthLabel = document.getElementById("strengthLabel");
+      const strengthBars = strengthContainer.querySelectorAll(
+        ".strength-bars span"
+      );
+
+      const registerForm = document.getElementById("registerForm");
+
+      // Show / hide password.
+      function setupPasswordToggle(button, input) {
+        button?.addEventListener("click", () => {
+          const isPassword = input.type === "password";
+
+          input.type = isPassword ? "text" : "password";
+          button.textContent = isPassword ? "Ẩn" : "Hiện";
+
+          button.setAttribute(
+            "aria-label",
+            isPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"
+          );
+        });
+      }
+
+      setupPasswordToggle(togglePassword, passwordInput);
+      setupPasswordToggle(toggleConfirmPassword, confirmPasswordInput);
+
+      // Password strength indicator.
+      passwordInput?.addEventListener("input", () => {
+        const password = passwordInput.value;
+        let score = 0;
+
+        if (password.length >= 8) score++;
+        if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
+        if (/\d/.test(password)) score++;
+        if (/[^A-Za-z0-9]/.test(password)) score++;
+
+        const labels = [
+          "Rất yếu",
+          "Yếu",
+          "Trung bình",
+          "Tốt",
+          "Rất tốt"
+        ];
+
+        strengthLabel.textContent = password
+          ? labels[score]
+          : "Độ mạnh mật khẩu";
+
+        strengthBars.forEach((bar, index) => {
+          bar.className = password && index < score
+            ? `strength-${score}`
+            : "";
+        });
+      });
+
+      // Client-side validation before sending to the backend.
+      registerForm?.addEventListener("submit", (event) => {
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+        const agreeTerms = document.getElementById("agreeTerms").checked;
+
+        let error = "";
+
+        if (name.length < 2) {
+          error = "Tên hiển thị phải có ít nhất 2 ký tự.";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          error = "Địa chỉ email không hợp lệ.";
+        } else if (password.length < 8) {
+          error = "Mật khẩu phải có ít nhất 8 ký tự.";
+        } else if (password !== confirmPassword) {
+          error = "Mật khẩu xác nhận không khớp.";
+        } else if (!agreeTerms) {
+          error = "Vui lòng đồng ý với Điều khoản sử dụng và Chính sách quyền riêng tư.";
+        }
+
+        if (error) {
+          event.preventDefault();
+
+          const message = document.getElementById("authMessage");
+          message.textContent = error;
+          message.className = "auth-message error";
+          message.hidden = false;
+        }
+      });
+
+      // Prevent placeholder links from navigating away.
+      ["termsLink", "privacyLink"].forEach((id) => {
+        document.getElementById(id)?.addEventListener("click", (event) => {
+          event.preventDefault();
+
+          const message = document.getElementById("authMessage");
+          message.textContent =
+            "Tính năng này hiện chưa được triển khai. Vui lòng quay lại sau.";
+          message.className = "auth-message info";
+          message.hidden = false;
+        });
+      });
+    });
+  </script> -->
+
+</body>
+</html>

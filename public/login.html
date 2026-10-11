@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f8fc">
+
+  <title>Đăng nhập | Code Arena</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/auth.css">
+</head>
+
+<body class="auth-page">
+
+  <main class="auth-layout">
+
+    <!-- LEFT: BRANDING -->
+    <section class="auth-visual">
+
+      <a href="/index.html" class="brand auth-brand">
+        <div class="brand-icon">⚡</div>
+        <span>Code<span class="brand-highlight">Arena</span></span>
+      </a>
+
+      <div class="visual-content">
+
+        <div class="visual-badge">
+          <span class="visual-badge-dot"></span>
+          ĐẤU TRƯỜNG ĐANG CHỜ BẠN
+        </div>
+
+        <h1>
+          Nghĩ chiến thuật.<br>
+          <span>Lập trình sắc bén.</span><br>
+          Chinh phục đấu trường.
+        </h1>
+
+        <p class="visual-description">
+          Tạo bot thông minh, so tài cùng những đối thủ đáng gờm
+          và biến chiến thuật của bạn thành chiến thắng.
+        </p>
+
+        <div class="visual-showcase">
+
+          <div class="showcase-glow"></div>
+
+          <div class="showcase-card showcase-card-main">
+            <div class="showcase-card-header">
+              <div class="showcase-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <span class="showcase-file">strategy.js</span>
+              <span class="showcase-live">● ĐANG CHẠY</span>
+            </div>
+
+            <div class="code-preview">
+              <div><span class="code-line-number">01</span> <span class="code-purple">const</span> <span class="code-blue">strategy</span> = {</div>
+              <div><span class="code-line-number">02</span> &nbsp;&nbsp;<span class="code-green">analyze</span>: <span class="code-orange">"opponent"</span>,</div>
+              <div><span class="code-line-number">03</span> &nbsp;&nbsp;<span class="code-green">optimize</span>: <span class="code-orange">true</span>,</div>
+              <div><span class="code-line-number">04</span> &nbsp;&nbsp;<span class="code-green">goal</span>: <span class="code-orange">"victory"</span></div>
+              <div><span class="code-line-number">05</span> };</div>
+              <div class="code-output">
+                <span class="output-check">✓</span>
+                Chiến thuật đã sẵn sàng. Bắt đầu so tài!
+              </div>
+            </div>
+          </div>
+
+          <div class="floating-stat floating-stat-top">
+            <span class="floating-stat-icon">⚡</span>
+            <div>
+              <strong>Chiến thuật sắc bén</strong>
+              <span>Không chỉ là những dòng mã</span>
+            </div>
+          </div>
+
+          <div class="floating-stat floating-stat-bottom">
+            <span class="floating-stat-icon">🏆</span>
+            <div>
+              <strong>Chiến thắng tiếp theo</strong>
+              <span>Bắt đầu từ một nước đi</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="visual-footer">
+        <span>© 2026 Code Arena</span>
+        <span>Dành cho người thích tư duy. Tạo nên bởi những người mê so tài.</span>
+      </div>
+
+    </section>
+
+    <!-- RIGHT: LOGIN FORM -->
+    <section class="auth-form-section">
+
+      <div class="auth-form-container">
+
+        <div class="mobile-brand">
+          <a href="/index.html" class="brand">
+            <div class="brand-icon">⚡</div>
+            <span>Code<span class="brand-highlight">Arena</span></span>
+          </a>
+        </div>
+
+        <div class="auth-heading">
+
+          <div class="auth-heading-icon">👋</div>
+
+          <h2>Chào mừng bạn trở lại!</h2>
+
+          <p>
+            Đăng nhập để tiếp tục hành trình chinh phục đấu trường.
+          </p>
+
+        </div>
+
+        <form id="loginForm" class="auth-form" novalidate>
+
+          <div class="form-group">
+
+            <label for="email">Địa chỉ email</label>
+
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">✉</span>
+
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="ban@example.com"
+                autocomplete="email"
+                required
+              >
+            </div>
+
+          </div>
+
+          <div class="form-group">
+
+            <div class="form-label-row">
+              <label for="password">Mật khẩu</label>
+            </div>
+
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">🔒</span>
+
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Nhập mật khẩu"
+                autocomplete="current-password"
+                required
+              >
+
+              <button
+                type="button"
+                class="password-toggle"
+                id="togglePassword"
+                aria-label="Hiện mật khẩu"
+              >
+                Hiện
+              </button>
+            </div>
+
+          </div>
+
+          <div class="form-options">
+            <label class="checkbox-label">
+              <input type="checkbox" id="rememberMe">
+              <span class="custom-checkbox"></span>
+              <span>Ghi nhớ email</span>
+            </label>
+
+            <a href="#" class="form-link" id="forgotPasswordLink">
+              Quên mật khẩu?
+            </a>
+          </div>
+
+          <div id="authMessage" class="auth-message" role="status" aria-live="polite" hidden></div>
+
+          <button type="submit" class="btn btn-primary auth-submit">
+            <span>Đăng nhập</span>
+            <span class="submit-arrow">→</span>
+          </button>
+
+        </form>
+
+        <div class="auth-divider">
+          <span>THỬ THÁCH TIẾP THEO ĐANG CHỜ BẠN</span>
+        </div>
+
+        <p class="auth-switch">
+          Chưa có tài khoản?
+          <a href="/register.html">Tạo tài khoản <span>→</span></a>
+        </p>
+
+        <div class="auth-security-note">
+          <span>🔐</span>
+          Tài khoản và dữ liệu của bạn luôn được bảo vệ.
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+
+</body>
+</html>

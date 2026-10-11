@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7f8fc">
+
+    <title>Bot của tôi | Code Arena</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/social-notifications.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/bots.css">
+</head>
+
+<body class="dashboard-page bots-page">
+    <main class="main-content">
+        <header class="topbar">
+            <div class="topbar-left">
+                <a class="btn btn-secondary" href="/dashboard.html">← Tổng quan</a>
+                <div class="breadcrumb">
+                    <span>Khu vực làm việc</span>
+                    <span class="breadcrumb-separator">/</span>
+                    <strong>Bot của tôi</strong>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <a class="btn btn-primary" href="/create-bot.html">+ Tạo bot</a>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <section class="bots-page-heading" aria-labelledby="botsPageTitle">
+                <div>
+                    <h1 id="botsPageTitle">Bot của tôi</h1>
+                    <p>Quản lý bot, xem mã nguồn và cập nhật chiến thuật của bạn.</p>
+                </div>
+                <p class="bots-page-count">
+                    Tổng số: <strong id="botCount">—</strong>
+                </p>
+            </section>
+
+            <div class="bot-list" id="botsList" aria-live="polite">
+                <div class="loading-state">
+                    <div class="loading-spinner"></div>
+                    <p>Đang tải danh sách bot...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/social-notifications.js"></script>
+    <script src="/js/bots.js"></script>
+</body>
+</html>

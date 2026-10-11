@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7f8fc">
+    <title>Phòng đấu | OTT Code Arena</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/matches.css?v=20261011-room-credentials">
+    <link rel="stylesheet" href="/css/social-notifications.css">
+</head>
+<body class="matches-page">
+    <main class="matches-shell">
+        <nav class="matches-nav" aria-label="Điều hướng">
+            <a class="btn btn-secondary" href="/dashboard.html">← Tổng quan</a>
+            <div class="matches-nav-links">
+                <a href="/bots.html">Bot của tôi</a>
+                <a class="active" href="/matches.html">Phòng đấu</a>
+                <a href="/friends.html">Bạn bè</a>
+            </div>
+        </nav>
+
+        <header class="matches-heading">
+            <h1>Đấu trường Kéo · Búa · Bao</h1>
+            <p>Tạo phòng riêng, tìm đối thủ hoặc vào xem những trận đấu đang diễn ra.</p>
+        </header>
+
+        <div id="pageMessage" class="create-bot-message" role="status" aria-live="polite"></div>
+
+        <section id="roomsHomePanel">
+            <div id="roomActionChoices" class="room-action-choices">
+                <button class="room-action-card" type="button" data-room-view="search">
+                    <span class="room-action-icon" aria-hidden="true">⌕</span>
+                    <span class="room-action-copy">
+                        <strong>Tìm phòng</strong>
+                        <span>Tìm nhanh phòng công khai hoặc riêng tư theo tên.</span>
+                    </span>
+                    <span class="room-action-arrow" aria-hidden="true">→</span>
+                </button>
+                <button id="createRoomChoice" class="room-action-card" type="button" data-room-view="create">
+                    <span class="room-action-icon create" aria-hidden="true">＋</span>
+                    <span class="room-action-copy">
+                        <strong>Tạo phòng</strong>
+                        <span>Mở phòng mới và mời đối thủ tham gia bằng tên cùng mật khẩu.</span>
+                    </span>
+                    <span class="room-action-arrow" aria-hidden="true">→</span>
+                </button>
+            </div>
+        </section>
+
+        <section id="createRoomCard" class="match-card room-subpage" hidden>
+                <div class="match-section-heading">
+                    <h2>Tạo phòng đấu</h2>
+                    <p>Bạn cần có ít nhất một bot đang hoạt động. Đặt mật khẩu để chia sẻ riêng với người chơi và khán giả.</p>
+                </div>
+                <button class="room-back-button" type="button" data-room-view="home">← Quay lại</button>
+                <form id="createRoomForm" class="match-create-form">
+                    <label>
+                        Tên phòng
+                        <input id="roomName" name="name" type="text" minlength="2" maxlength="80" required>
+                    </label>
+                    <label>
+                        Mật khẩu phòng
+                        <input id="roomPassword" name="password" type="password" minlength="4" maxlength="72" required>
+                    </label>
+                    <label>
+                        Chế độ phòng
+                        <select id="roomVisibility" name="visibility">
+                            <option value="public">Công khai — xuất hiện trong danh sách</option>
+                            <option value="private">Riêng tư — chỉ tìm thấy khi tra cứu tên</option>
+                        </select>
+                    </label>
+                    <input id="challengeInvitationId" name="challengeInvitationId" type="hidden">
+                    <button class="btn btn-primary" id="createRoomBtn" type="submit">Tạo phòng</button>
+                </form>
+        </section>
+
+        <section id="privateRoomSearchCard" class="match-card room-subpage" hidden>
+                <div class="match-section-heading">
+                    <h2>Tìm phòng</h2>
+                    <p>Tìm theo tên phòng. Kết quả gồm cả phòng công khai và riêng tư; cần mật khẩu để tham gia hoặc xem.</p>
+                </div>
+                <button class="room-back-button" type="button" data-room-view="home">← Quay lại</button>
+                <form id="searchRoomForm" class="room-search-form">
+                    <label for="privateRoomSearch">Tên phòng</label>
+                    <input id="privateRoomSearch" name="name" type="search" minlength="2" maxlength="80" placeholder="Nhập tên phòng cần tìm" required>
+                    <button class="btn btn-secondary" type="submit">Tìm phòng</button>
+                </form>
+                <div id="privateRoomsList" class="room-list" aria-live="polite"></div>
+        </section>
+
+        <section id="roomsHomeLists">
+            <section id="publicRoomListCard" class="match-card room-active-list">
+                <div class="match-section-heading">
+                    <h2>Phòng công khai</h2>
+                    <p>Danh sách các phòng công khai đang mở, gồm phòng chờ và phòng đang đấu. Cần mật khẩu để vào xem hoặc tham gia.</p>
+                </div>
+                <div id="publicRoomsList" class="room-list" aria-live="polite">
+                    <div class="loading-state"><div class="loading-spinner"></div><p>Đang tải danh sách phòng...</p></div>
+                </div>
+            </section>
+
+            <section id="myRoomsCard" class="match-card">
+                <div class="match-section-heading">
+                    <h2>Phòng của bạn</h2>
+                    <p>Vào lại phòng đang chờ hoặc trận đấu vẫn tiếp diễn khi bạn rời trang.</p>
+                </div>
+                <div id="myRoomsList" class="room-list" aria-live="polite">
+                    <div class="loading-state"><div class="loading-spinner"></div><p>Đang tải phòng của bạn...</p></div>
+                </div>
+            </section>
+        </section>
+
+        <dialog id="roomAccessDialog" class="room-access-dialog" aria-labelledby="roomAccessHeading">
+            <button id="closeRoomAccessDialog" class="room-dialog-close" type="button" aria-label="Đóng">×</button>
+            <section id="roomAccessCard" class="match-card" hidden>
+                <div class="match-section-heading">
+                    <h2 id="roomAccessHeading">Vào phòng</h2>
+                    <p id="roomAccessDescription">Nhập mật khẩu phòng để tiếp tục.</p>
+                </div>
+                <form id="roomAccessForm" class="room-search-form">
+                    <label for="roomAccessPassword">Mật khẩu phòng</label>
+                    <input id="roomAccessPassword" name="password" type="password" minlength="1" maxlength="72" required>
+                    <div class="room-dialog-actions">
+                        <button class="btn btn-primary" id="roomAccessSubmit" type="submit">Tiếp tục</button>
+                        <button class="btn btn-secondary" id="cancelRoomAccess" type="button">Hủy</button>
+                    </div>
+                </form>
+            </section>
+            <p id="roomDialogMessage" class="room-dialog-message" role="alert" hidden></p>
+            <section id="spectatorPasswordCard" class="match-card" hidden>
+                <div class="match-section-heading">
+                    <h2>Xem phòng đấu</h2>
+                    <p>Nhập mật khẩu phòng để theo dõi diễn biến. Người xem không cần đăng nhập.</p>
+                </div>
+                <form id="spectatorPasswordForm" class="room-search-form">
+                    <label for="spectatorPassword">Mật khẩu phòng</label>
+                    <input id="spectatorPassword" type="password" minlength="1" maxlength="72" required>
+                    <div class="room-dialog-actions">
+                        <button class="btn btn-primary" type="submit">Vào xem</button>
+                        <button class="btn btn-secondary" id="cancelSpectatorAccess" type="button">Hủy</button>
+                    </div>
+                </form>
+            </section>
+        </dialog>
+
+        <section id="roomPanel" class="match-card" hidden>
+            <div class="live-match-heading">
+                <div>
+                    <p class="match-kicker">PHÒNG <span id="roomIdLabel"></span></p>
+                    <h2 id="roomTitle">Đang tải phòng...</h2>
+                    <p id="roomStatus" class="room-status-label"></p>
+                </div>
+                <a class="btn btn-secondary" href="/matches.html">Danh sách phòng</a>
+            </div>
+            <section class="room-credentials" aria-labelledby="roomCredentialsHeading">
+                <div>
+                    <h3 id="roomCredentialsHeading">Thông tin phòng</h3>
+                    <p><span>Tên phòng</span><strong id="roomNameDisplay"></strong></p>
+                    <p><span>Mật khẩu</span><code id="roomPasswordDisplay"></code></p>
+                    <small>Mật khẩu được hiển thị cho người đã vào phòng. Phòng tạo trước bản cập nhật có thể không khôi phục được mật khẩu gốc.</small>
+                </div>
+                <button class="btn btn-secondary" id="copyRoomPasswordBtn" type="button">Sao chép mật khẩu</button>
+            </section>
+
+            <section id="lobbyPanel" class="room-lobby">
+                <div class="match-section-heading">
+                    <h3>Sảnh chờ</h3>
+                    <p>Chọn bot của bạn rồi bấm sẵn sàng. Chủ phòng chỉ có thể bắt đầu khi cả hai người đã sẵn sàng.</p>
+                </div>
+                <div id="roomPlayers" class="room-players"></div>
+                <section id="roomFriendsSection" class="room-friends-section" hidden>
+                    <h3>Mời bạn bè thi đấu</h3>
+                    <p>Chỉ bạn bè đang trực tuyến mới hiện ở đây. Lời mời có hiệu lực trong 10 giây.</p>
+                    <div id="roomFriendsList" class="room-friends-list"></div>
+                </section>
+                <div id="roomPlayerControls" class="room-player-controls" hidden>
+                    <label for="roomBotSelect">Bot thi đấu của bạn</label>
+                    <select id="roomBotSelect"></select>
+                    <button class="btn btn-secondary" id="readyBtn" type="button">Sẵn sàng</button>
+                </div>
+                <button class="btn btn-primary" id="startRoomBtn" type="button" hidden>Bắt đầu trận</button>
+            </section>
+
+            <section id="gamePanel" class="room-game" hidden>
+                <div id="pauseNotice" class="pause-notice" hidden></div>
+                <div class="match-board-layout">
+                    <div class="board-wrap">
+                        <div id="matchBoard" class="game-board" role="grid" aria-label="Bàn cờ 9 nhân 9"></div>
+                        <div class="board-legend" aria-label="Chú giải quân cờ">
+                            <span><i class="legend-token side-a"></i> Bên A</span>
+                            <span><i class="legend-token side-b"></i> Bên B</span>
+                            <span class="last-move-legend"><i aria-hidden="true"></i> Nước đi gần nhất</span>
+                            <span class="type-legend">BÚA · KÉO · BAO</span>
+                        </div>
+                    </div>
+
+                    <aside class="match-tools">
+                        <section class="match-tool-card">
+                            <h3>Trận đấu tự động</h3>
+                            <p id="matchStatus">Đang tải trạng thái trận...</p>
+                            <div id="playerMatchControls" class="match-control-buttons" hidden>
+                                <button class="btn btn-secondary" id="pauseMatchBtn" type="button">Tạm dừng (30 giây)</button>
+                                <button class="btn btn-primary" id="resumeMatchBtn" type="button" hidden>Tiếp tục trận</button>
+                            </div>
+                            <p id="pauseBudgetLabel" class="pause-budget-label"></p>
+                        </section>
+
+                        <section id="changeBotSection" class="match-tool-card" hidden>
+                            <h3>Đổi bot khi tạm dừng</h3>
+                            <label for="changeRoomBotSelect">Bot sẽ dùng ở lượt tiếp theo</label>
+                            <select id="changeRoomBotSelect"></select>
+                            <button class="btn btn-secondary" id="changeRoomBotBtn" type="button">Đổi bot</button>
+                        </section>
+
+                        <section class="match-tool-card history-card">
+                            <h3>Lịch sử nước đi</h3>
+                            <ol id="matchHistory" class="match-history"></ol>
+                        </section>
+                    </aside>
+                </div>
+            </section>
+
+            <div id="waitingRoomControls" class="finished-room-controls" hidden>
+                <p id="roomExitMessage">Bạn có thể rời sảnh chờ bất cứ lúc nào.</p>
+                <button class="btn btn-secondary" id="waitingLeaveRoomBtn" type="button">Rời phòng</button>
+                <button class="btn btn-secondary" id="waitingDissolveRoomBtn" type="button" hidden>Giải tán phòng</button>
+            </div>
+        </section>
+
+        <dialog id="matchResultDialog" class="match-result-dialog" aria-labelledby="matchResultTitle">
+            <div class="match-result-content">
+                <span class="match-result-kicker">KẾT QUẢ TRẬN ĐẤU</span>
+                <h2 id="matchResultTitle">Trận đấu đã kết thúc</h2>
+                <p id="matchResultMessage"></p>
+                <div class="match-result-actions">
+                    <button class="btn btn-secondary" id="resultLeaveRoomBtn" type="button">Rời phòng</button>
+                    <button class="btn btn-secondary" id="resultDissolveRoomBtn" type="button" hidden>Giải tán phòng</button>
+                    <button class="btn btn-primary" id="requestRematchBtn" type="button" hidden>Mời đấu tiếp</button>
+                    <button class="btn btn-primary" id="acceptRematchBtn" type="button" hidden>Đồng ý đấu tiếp</button>
+                    <button class="btn btn-secondary" id="declineRematchBtn" type="button" hidden>Từ chối</button>
+                </div>
+                <span id="rematchStatusMessage" class="room-status-label" aria-live="polite"></span>
+            </div>
+        </dialog>
+    </main>
+    <script src="/js/api.js"></script>
+    <script src="/js/social-notifications.js"></script>
+    <script src="/js/matches.js?v=20261011-no-bot-challenge-loop"></script>
+</body>
+</html>

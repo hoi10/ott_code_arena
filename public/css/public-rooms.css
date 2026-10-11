@@ -1,0 +1,117 @@
+.public-rooms-section {
+    padding-top: 56px;
+    padding-bottom: 72px;
+}
+
+.public-rooms-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.public-rooms-heading h2 {
+    margin: 10px 0 8px;
+    font-size: clamp(24px, 3vw, 34px);
+}
+
+.public-rooms-heading p {
+    max-width: 620px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.public-rooms-link {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.public-rooms-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.public-room-card {
+    display: grid;
+    justify-items: start;
+    gap: 10px;
+    min-width: 0;
+    padding: 21px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.public-room-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #14866c;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+.public-room-status span {
+    width: 8px;
+    height: 8px;
+    background: #20b486;
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px rgb(32 180 134 / 12%);
+}
+
+.public-room-card h3 {
+    overflow-wrap: anywhere;
+    font-size: 17px;
+}
+
+.public-room-card p,
+.public-rooms-message {
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.public-room-card .btn {
+    min-height: 42px;
+    margin-top: 3px;
+    border-radius: 12px;
+}
+
+.public-rooms-message {
+    grid-column: 1 / -1;
+    padding: 22px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
+
+@media (max-width: 850px) {
+    .public-rooms-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .public-rooms-section {
+        padding-top: 38px;
+        padding-bottom: 48px;
+    }
+
+    .public-rooms-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .public-rooms-grid {
+        grid-template-columns: 1fr;
+    }
+}

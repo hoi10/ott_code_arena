@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Tạo bot | OTT Code Arena</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/bot-editor.css">
+    <link rel="stylesheet" href="/css/social-notifications.css">
+</head>
+
+<body>
+
+<main class="create-bot-page">
+
+    <nav class="page-breadcrumb" aria-label="Điều hướng cấp trang">
+        <a href="/dashboard.html">Tổng quan</a>
+        <span>/</span>
+        <a href="/bots.html">Bot của tôi</a>
+        <span>/</span>
+        <span id="breadcrumbCurrent">Tạo bot</span>
+    </nav>
+
+    <header class="create-bot-heading">
+        <h1 id="pageTitle">Tạo bot mới</h1>
+        <p id="pageDescription">
+            Xây dựng bot của bạn và chuẩn bị tham gia các trận đấu trên OTT Code Arena.
+        </p>
+    </header>
+
+    <div
+        id="createBotMessage"
+        class="create-bot-message"
+        role="status"
+        aria-live="polite">
+    </div>
+
+    <form id="createBotForm" class="create-bot-form">
+
+        <!-- Basic information -->
+        <section class="form-section">
+
+            <div class="form-section-heading">
+                <h2>Thông tin cơ bản</h2>
+                <p>Đặt tên và mô tả cho bot của bạn.</p>
+            </div>
+
+            <div class="create-form-grid">
+
+                <div>
+                    <label class="create-label" for="botName">
+                        Tên bot <span class="required-mark">*</span>
+                    </label>
+
+                    <input
+                        class="create-input"
+                        type="text"
+                        id="botName"
+                        name="name"
+                        placeholder="Ví dụ: AlphaBot"
+                        minlength="2"
+                        maxlength="100"
+                        required>
+
+                    <p class="field-hint">
+                        Tên bot dài từ 2 đến 60 ký tự.
+                    </p>
+                </div>
+
+                <div>
+                    <label class="create-label" for="botLanguage">
+                        Ngôn ngữ lập trình
+                        <span class="required-mark">*</span>
+                    </label>
+
+                    <select
+                        class="create-select"
+                        id="botLanguage"
+                        name="language"
+                        required>
+
+                        <option value="javascript">JavaScript</option>
+                    </select>
+
+                    <p class="field-hint">
+                        Chỉ những ngôn ngữ được hệ thống hỗ trợ mới dùng được.
+                    </p>
+                </div>
+
+                <div class="full-width">
+                    <label class="create-label" for="botDescription">
+                        Mô tả bot
+                    </label>
+
+                    <textarea
+                        class="create-textarea"
+                        id="botDescription"
+                        name="description"
+                        maxlength="500"
+                        placeholder="Mô tả chiến thuật hoặc mục tiêu của bot..."></textarea>
+
+                    <p class="field-hint">
+                        Tối đa 500 ký tự.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Source code -->
+        <section class="form-section">
+
+            <div class="form-section-heading">
+                <h2>Mã nguồn</h2>
+                <p>Viết chương trình điều khiển bot của bạn.</p>
+                <a class="bot-guide-link" href="/bot-guide.html" target="_blank" rel="noopener">
+                    Mở hướng dẫn viết bot <span aria-hidden="true">↗</span>
+                </a>
+            </div>
+
+            <div class="starter-code-note">
+                Bot nhận <code>input</code> gồm bàn cờ và <code>legalMoves</code>,
+                rồi trả về <code>{ pieceId, to: { x, y } }</code>.
+                Chỉ JavaScript được hỗ trợ. Hãy kiểm tra mã trước khi lưu.
+            </div>
+
+            <div class="editor-toolbar">
+                <div class="editor-toolbar-left">
+                    <span class="editor-file-name">
+                        <span aria-hidden="true">▤</span>
+                        <span id="editorFileName">main.js</span>
+                    </span>
+                </div>
+
+                <div class="editor-toolbar-right">
+                    <span class="editor-status">
+                        <span class="editor-status-dot"></span>
+                        Trình soạn thảo trên trình duyệt
+                    </span>
+                </div>
+            </div>
+
+            <textarea
+                class="create-code-editor"
+                id="botCode"
+                name="code"
+                spellcheck="false"
+                autocomplete="off"
+                autocapitalize="off"
+                placeholder="// Viết mã bot của bạn tại đây..."
+                required></textarea>
+
+            <div class="editor-footer">
+                <div class="editor-footer-info">
+                    <span id="codeCharacterCount">0 ký tự</span>
+                    <span id="codeLineCount">1 dòng</span>
+                </div>
+
+                <div class="editor-footer-actions">
+                    <button
+                        class="editor-btn"
+                        type="button"
+                        id="reset-code">
+                        Xóa mã
+                    </button>
+                    <button
+                        class="editor-btn"
+                        type="button"
+                        id="test-code">
+                        Kiểm tra nước đi
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Visibility -->
+        <section class="form-section">
+
+            <div class="form-section-heading">
+                <h2>Quyền truy cập</h2>
+                <p>Chọn chế độ hiển thị cho bot.</p>
+            </div>
+
+            <div class="visibility-options">
+
+                <label class="visibility-option">
+                    <input
+                        type="radio"
+                        name="visibility"
+                        value="private"
+                        checked>
+
+                    <div>
+                        <strong>Riêng tư</strong>
+                        <span>
+                            Chỉ bạn có thể chọn bot này làm đối thủ.
+                        </span>
+                    </div>
+                </label>
+
+                <label class="visibility-option">
+                    <input
+                        type="radio"
+                        name="visibility"
+                        value="public">
+
+                    <div>
+                        <strong>Công khai</strong>
+                        <span>
+                            Cho phép người khác chọn bot này làm đối thủ.
+                        </span>
+                    </div>
+                </label>
+
+            </div>
+
+            <p class="field-hint">
+                Chỉ tên và mô tả bot public được liệt kê công khai; mã nguồn không hiển thị.
+            </p>
+
+        </section>
+
+        <!-- Actions -->
+        <div class="create-bot-actions">
+
+            <a href="/bots.html" class="btn btn-secondary">
+                Hủy
+            </a>
+
+            <button
+                type="button"
+                class="btn btn-secondary"
+                id="saveDraftBtn">
+                Lưu nháp cục bộ
+            </button>
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+                id="submitBotBtn">
+                Tạo bot
+            </button>
+
+        </div>
+
+    </form>
+
+</main>
+
+<script src="/js/api.js"></script>
+<script src="/js/social-notifications.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/create-bot.js"></script>
+
+</body>
+</html>

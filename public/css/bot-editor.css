@@ -1,0 +1,434 @@
+/* =========================================
+   CREATE BOT PAGE
+   Đồng bộ giao diện sáng với Dashboard
+   ========================================= */
+
+.create-bot-page {
+    width: min(100% - 40px, 1180px);
+    margin: 0 auto;
+    padding: 32px 0 60px;
+    color: var(--text);
+}
+
+/* Breadcrumb */
+
+.page-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 22px;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.page-breadcrumb a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.page-breadcrumb a:hover {
+    color: var(--primary);
+}
+
+/* Heading */
+
+.create-bot-heading {
+    margin-bottom: 28px;
+}
+
+.create-bot-heading h1 {
+    margin: 0 0 8px;
+    color: var(--text);
+    font-family: var(--font-heading);
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+}
+
+.create-bot-heading p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+/* Form */
+
+.create-bot-form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.form-section {
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.form-section-heading {
+    padding-bottom: 17px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.form-section-heading h2 {
+    margin: 0 0 5px;
+    color: var(--text);
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.form-section-heading p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.bot-guide-link {
+    display: inline-flex;
+    gap: 6px;
+    margin-top: 10px;
+    color: var(--primary, #6857e8);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* Input grid */
+
+.create-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.create-form-grid .full-width {
+    grid-column: 1 / -1;
+}
+
+.create-label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.create-input,
+.create-select,
+.create-textarea {
+    display: block;
+    width: 100%;
+    padding: 12px 13px;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    outline: none;
+    font: inherit;
+    font-size: 13px;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.create-input,
+.create-select {
+    min-height: 44px;
+}
+
+.create-textarea {
+    min-height: 105px;
+    resize: vertical;
+    line-height: 1.7;
+}
+
+.create-input:focus,
+.create-select:focus,
+.create-textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgb(104 87 232 / 12%);
+}
+
+.create-input::placeholder,
+.create-textarea::placeholder {
+    color: var(--text-muted);
+}
+
+.create-select {
+    cursor: pointer;
+}
+
+.create-select option {
+    color: var(--text);
+    background: var(--surface);
+}
+
+.field-hint {
+    margin: 7px 0 0;
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.required-mark {
+    color: var(--red);
+}
+
+/* Visibility options */
+
+.visibility-options {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.visibility-option {
+    display: flex;
+    flex: 1;
+    align-items: flex-start;
+    gap: 10px;
+    min-width: 200px;
+    padding: 15px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.visibility-option:hover {
+    border-color: rgb(104 87 232 / 40%);
+    background: var(--primary-soft);
+}
+
+.visibility-option:has(input:checked) {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    box-shadow: 0 0 0 2px rgb(104 87 232 / 7%);
+}
+
+.visibility-option input {
+    flex-shrink: 0;
+    margin-top: 4px;
+    accent-color: var(--primary);
+}
+
+.visibility-option strong {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.visibility-option span {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+/* Starter code note */
+
+.starter-code-note {
+    padding: 13px 15px;
+    margin-bottom: 14px;
+    color: var(--text-secondary);
+    background: var(--primary-soft);
+    border: 1px solid rgb(104 87 232 / 16%);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+/* Code editor
+   Giữ nền tối để phù hợp với Dashboard */
+
+.create-code-editor {
+    display: block;
+    width: 100%;
+    min-height: 320px;
+    padding: 19px;
+    color: #e5e7ff;
+    background: #202139;
+    border: 1px solid #34354f;
+    border-radius: var(--radius-md);
+    outline: none;
+    resize: vertical;
+    font: 12px/1.9 "SFMono-Regular", Consolas,
+        "Liberation Mono", monospace;
+    tab-size: 2;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.create-code-editor:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgb(104 87 232 / 12%);
+}
+
+.create-code-editor::placeholder {
+    color: #9698b5;
+}
+
+.editor-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 0 13px;
+    color: var(--text-secondary);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.editor-btn:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
+/* Reset code button */
+
+#reset-code {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 36px;
+    padding: 0 13px;
+    color: var(--text-secondary);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+#reset-code:hover {
+    color: #d94f68;
+    background: #fff5f6;
+    border-color: #f3d2d9;
+}
+
+#reset-code:active {
+    transform: scale(0.98);
+}
+
+#reset-code:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+}
+
+/* Messages */
+
+.create-bot-message {
+    display: none;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.create-bot-message.visible {
+    display: block;
+}
+
+.create-bot-message.error {
+    color: #c83f58;
+    background: #fff2f4;
+    border: 1px solid #f3cbd3;
+}
+
+.create-bot-message.success {
+    color: #18865f;
+    background: #edfbf5;
+    border: 1px solid #c5efdd;
+}
+
+/* Actions */
+
+.create-bot-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.create-bot-actions .btn {
+    min-height: 42px;
+    padding: 0 18px;
+}
+
+/* Responsive */
+
+@media (max-width: 650px) {
+    .create-bot-page {
+        width: calc(100% - 28px);
+        padding-top: 22px;
+    }
+
+    .create-bot-heading h1 {
+        font-size: 25px;
+    }
+
+    .form-section {
+        padding: 17px;
+        border-radius: var(--radius-md);
+    }
+
+    .create-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .create-form-grid .full-width {
+        grid-column: auto;
+    }
+
+    .visibility-options {
+        flex-direction: column;
+    }
+
+    .visibility-option {
+        min-width: 0;
+    }
+
+    .create-code-editor {
+        min-height: 260px;
+        padding: 14px;
+        font-size: 11px;
+    }
+
+    .create-bot-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .create-bot-actions .btn {
+        width: 100%;
+    }
+}

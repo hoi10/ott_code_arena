@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7f8fc">
+    <meta name="description" content="OTT Code Arena — Tự tạo bot, đấu trí trên đấu trường Kéo – Búa – Bao.">
+    <title>OTT Code Arena — Tạo bot, đấu trí</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/public-rooms.css">
+    <script src="/js/api.js" defer></script>
+    <script src="/js/main.js" defer></script>
+    <script src="/js/public-rooms.js" defer></script>
+</head>
+
+<body>
+    <div class="page-glow page-glow-one"></div>
+    <div class="page-glow page-glow-two"></div>
+
+    <!-- Navigation -->
+    <header class="navbar">
+        <a href="/" class="brand" aria-label="Trang chủ OTT Code Arena">
+            <span class="brand-icon">
+                <svg viewBox="0 0 40 40" fill="none">
+                    <rect width="40" height="40" rx="13" fill="url(#brandGradient)"/>
+                    <path d="M11 13L17 20L11 27M20 27H29" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs>
+                        <linearGradient id="brandGradient" x1="0" y1="0" x2="40" y2="40">
+                            <stop stop-color="#7773FF"/>
+                            <stop offset="1" stop-color="#5948DF"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </span>
+
+            <span class="brand-name">OTT<span>ARENA</span></span>
+        </a>
+
+        <nav class="nav-links" id="navLinks">
+            <a href="#features">Tính năng</a>
+            <a href="#how-it-works">Cách chơi</a>
+            <a href="#live-rooms">Trận đang diễn ra</a>
+            <a href="#arena-preview">Đấu trường</a>
+        </nav>
+
+        <div class="nav-actions">
+            <a href="/login.html" class="btn btn-ghost nav-login">Đăng nhập</a>
+            <a href="/register.html" class="btn btn-primary nav-signup">
+                Bắt đầu <span aria-hidden="true">↗</span>
+            </a>
+        </div>
+
+        <button class="mobile-menu" id="mobileMenu" aria-label="Mở hoặc đóng điều hướng" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </header>
+
+    <main>
+        <!-- Hero -->
+        <section class="hero container">
+            <div class="hero-content">
+                <div class="eyebrow">
+                    <span class="status-dot"></span>
+                    <span>ĐẤU TRƯỜNG BOT THẾ HỆ MỚI</span>
+                </div>
+
+                <h1>
+                    Tự tạo bot của bạn.<br>
+                    <span class="gradient-text">Làm chủ đấu trường.</span>
+                </h1>
+
+                <p class="hero-description">
+                    Biến những dòng mã thành đối thủ đáng gờm. Tạo bot, thử sức
+                    cùng bot của người chơi khác và chứng minh chiến thuật của bạn.
+                </p>
+
+                <div class="hero-actions">
+                    <a href="/register.html" class="btn btn-primary btn-large">
+                        Vào đấu trường
+                        <span class="button-arrow">→</span>
+                    </a>
+
+                    <a href="#how-it-works" class="btn btn-secondary btn-large">
+                        <span class="play-icon">▶</span>
+                        Khám phá cách chơi
+                    </a>
+                </div>
+
+                <div class="hero-trust">
+                    <div class="avatar-stack" aria-hidden="true">
+                        <span class="mini-avatar avatar-purple">A</span>
+                        <span class="mini-avatar avatar-blue">K</span>
+                        <span class="mini-avatar avatar-orange">M</span>
+                        <span class="mini-avatar avatar-green">T</span>
+                    </div>
+
+                    <div class="trust-copy">
+                        <div class="trust-stars">★★★★★</div>
+                        <p>Dành cho những người ham học hỏi và yêu thích đấu trí</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Battle illustration -->
+            <div class="hero-visual" id="arena-preview">
+                <div class="visual-orbit orbit-one"></div>
+                <div class="visual-orbit orbit-two"></div>
+
+                <div class="floating-chip chip-top">
+                    <span class="chip-icon purple-icon">✦</span>
+                    <span>
+                        <strong>Chiến thuật khôn ngoan</strong>
+                        <small>Mỗi nước đi đều quan trọng</small>
+                    </span>
+                </div>
+
+                <div class="battle-card">
+                    <div class="battle-card-header">
+                        <div>
+                            <span class="live-indicator"></span>
+                            <span class="battle-label">TRẬN ĐẤU ĐANG DIỄN RA</span>
+                        </div>
+                        <span class="round-label">LƯỢT 04</span>
+                    </div>
+
+                    <div class="battle-arena">
+                        <div class="battle-side">
+                            <div class="bot-avatar bot-violet">
+                                <svg viewBox="0 0 100 100" fill="none" aria-hidden="true">
+                                    <rect x="20" y="27" width="60" height="49" rx="16" fill="#DCD9FF"/>
+                                    <rect x="28" y="35" width="44" height="32" rx="10" fill="#7766EE"/>
+                                    <circle cx="41" cy="49" r="5" fill="white"/>
+                                    <circle cx="59" cy="49" r="5" fill="white"/>
+                                    <path d="M42 59H58" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                                    <path d="M50 27V17M43 17H57" stroke="#7766EE" stroke-width="4" stroke-linecap="round"/>
+                                    <rect x="12" y="43" width="8" height="18" rx="4" fill="#A99EFF"/>
+                                    <rect x="80" y="43" width="8" height="18" rx="4" fill="#A99EFF"/>
+                                    <rect x="33" y="75" width="12" height="9" rx="4" fill="#7766EE"/>
+                                    <rect x="55" y="75" width="12" height="9" rx="4" fill="#7766EE"/>
+                                </svg>
+                            </div>
+                            <strong class="bot-name">NOVA.exe</strong>
+                            <span class="bot-type">Bot linh hoạt</span>
+                            <div class="health-bar"><span class="health-violet"></span></div>
+                            <span class="health-label">Quân cờ <b>09</b></span>
+                        </div>
+
+                        <div class="versus">
+                            <span>VS</span>
+                            <div class="versus-line"></div>
+                        </div>
+
+                        <div class="battle-side">
+                            <div class="bot-avatar bot-cyan">
+                                <svg viewBox="0 0 100 100" fill="none" aria-hidden="true">
+                                    <path d="M50 13L84 33V68L50 88L16 68V33L50 13Z" fill="#C8F5F2"/>
+                                    <path d="M50 22L75 37V64L50 79L25 64V37L50 22Z" fill="#31BDB7"/>
+                                    <rect x="32" y="39" width="36" height="25" rx="8" fill="#E4FFFC"/>
+                                    <circle cx="42" cy="50" r="4" fill="#128A87"/>
+                                    <circle cx="58" cy="50" r="4" fill="#128A87"/>
+                                    <path d="M43 59H57" stroke="#128A87" stroke-width="3" stroke-linecap="round"/>
+                                    <path d="M50 22V12M44 12H56" stroke="#31BDB7" stroke-width="4" stroke-linecap="round"/>
+                                    <path d="M26 69L20 77M74 69L80 77" stroke="#31BDB7" stroke-width="5" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <strong class="bot-name">TITAN.js</strong>
+                            <span class="bot-type">Aggressive AI</span>
+                            <div class="health-bar"><span class="health-cyan"></span></div>
+                            <span class="health-label">Quân cờ <b>09</b></span>
+                        </div>
+                    </div>
+
+                    <div class="battle-divider"></div>
+
+                    <div class="battle-card-footer">
+                        <div class="battle-status">
+                            <span class="status-pulse"></span>
+                            <span>Trận đấu đang diễn ra</span>
+                        </div>
+                        <div class="battle-timer">
+                            <span class="timer-icon">◷</span>
+                            <span>02:41</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="floating-chip chip-bottom">
+                    <span class="chip-icon green-icon">↗</span>
+                    <span>
+                        <strong>+240 XP</strong>
+                        <small>Phần thưởng chiến thắng</small>
+                    </span>
+                </div>
+
+                <div class="decorative-star star-one">✳</div>
+                <div class="decorative-star star-two">✦</div>
+            </div>
+        </section>
+
+        <!-- Statistics -->
+        <section class="stats-section container" aria-label="Điểm nổi bật của nền tảng">
+            <div class="stats-card">
+                <div class="stat-item">
+                    <div class="stat-icon stat-purple">⌘</div>
+                    <div>
+                        <div class="stat-value">Mã của bạn</div>
+                        <div class="stat-label">Chiến thuật do bạn quyết định</div>
+                    </div>
+                </div>
+
+                <div class="stat-divider"></div>
+
+                <div class="stat-item">
+                    <div class="stat-icon stat-cyan">⚔</div>
+                    <div>
+                        <div class="stat-value">1 vs 1</div>
+                        <div class="stat-label">Đấu bot trực tiếp</div>
+                    </div>
+                </div>
+
+                <div class="stat-divider"></div>
+
+                <div class="stat-item">
+                    <div class="stat-icon stat-orange">♛</div>
+                    <div>
+                        <div class="stat-value">Vươn lên dẫn đầu</div>
+                        <div class="stat-label">So tài cùng cộng đồng</div>
+                    </div>
+                </div>
+
+                <div class="stat-divider"></div>
+
+                <div class="stat-item">
+                    <div class="stat-icon stat-green">✧</div>
+                    <div>
+                        <div class="stat-value">Không ngừng tiến bộ</div>
+                        <div class="stat-label">Rút kinh nghiệm sau mỗi trận</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="live-rooms" class="public-rooms-section container">
+            <div class="public-rooms-heading">
+                <div>
+                    <span class="section-kicker">TRỰC TIẾP TỪ ĐẤU TRƯỜNG</span>
+                    <h2>Phòng công khai đang mở</h2>
+                    <p>Theo dõi trận đang đấu hoặc tìm một sảnh chờ để tham gia. Bạn không cần đăng nhập để xem.</p>
+                </div>
+                <a class="public-rooms-link" href="/matches.html">Tất cả phòng đấu <span aria-hidden="true">→</span></a>
+            </div>
+            <div id="liveRoomsList" class="public-rooms-grid" aria-live="polite">
+                <p class="public-rooms-message">Đang tải các trận đấu...</p>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="features-section section-padding container" id="features">
+            <div class="section-heading">
+                <span class="section-kicker">DÀNH CHO NGƯỜI SÁNG TẠO</span>
+                <h2>Mã nguồn tạo nên bot.<br><span class="gradient-text">Chiến thuật tạo nên khác biệt.</span></h2>
+                <p>Mọi thứ bạn cần để xây dựng bot, so tài và hoàn thiện lối chơi.</p>
+            </div>
+
+            <div class="features-grid">
+                <article class="feature-card">
+                    <div class="feature-icon feature-icon-purple">
+                        <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                            <rect x="8" y="10" width="32" height="28" rx="8" stroke="currentColor" stroke-width="2.5"/>
+                            <path d="M17 20L22 24L17 28M26 28H32" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M24 10V5M19 5H29" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <span class="feature-number">01 / SÁNG TẠO</span>
+                    <h3>Tạo bot theo cách của bạn</h3>
+                    <p>Hiện thực hóa ý tưởng, tự viết chiến thuật và quản lý những bot do chính bạn tạo ra.</p>
+                    <a href="/register.html" class="feature-link">Bắt đầu tạo bot <span>→</span></a>
+                </article>
+
+                <article class="feature-card feature-card-highlight">
+                    <div class="feature-icon feature-icon-cyan">
+                        <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                            <path d="M24 5L29 17L42 18L32 27L35 40L24 33L13 40L16 27L6 18L19 17L24 5Z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+                            <path d="M24 15L27 22L34 23L29 28L30 34L24 31L18 34L19 28L14 23L21 22L24 15Z" fill="currentColor" opacity=".22"/>
+                        </svg>
+                    </div>
+                    <span class="feature-number">02 / SO TÀI</span>
+                    <h3>Đưa bot vào đấu trường</h3>
+                    <p>Thử sức với bot khác trong những trận đấu mà mỗi quyết định đều có thể xoay chuyển cục diện.</p>
+                    <a href="/register.html" class="feature-link">Tìm đối thủ <span>→</span></a>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon feature-icon-orange">
+                        <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                            <path d="M9 39V25H19V39M29 39V15H39V39M19 39V8H29V39" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+                            <path d="M7 39H41" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                            <path d="M24 15L27 21H21L24 15Z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <span class="feature-number">03 / TIẾN BỘ</span>
+                    <h3>Rút kinh nghiệm sau mỗi trận</h3>
+                    <p>Xem lại kết quả, học từ từng nước đi và từng bước nâng tầm chiến thuật của bot.</p>
+                    <a href="/register.html" class="feature-link">Bắt đầu so tài <span>→</span></a>
+                </article>
+            </div>
+        </section>
+
+        <!-- How it works -->
+        <section class="workflow-section section-padding" id="how-it-works">
+            <div class="container workflow-layout">
+                <div class="workflow-intro">
+                    <span class="section-kicker">BẮT ĐẦU THẬT DỄ DÀNG</span>
+                    <h2>Ba bước đơn giản.<br><span class="gradient-text">Thỏa sức sáng tạo.</span></h2>
+                    <p>Tạo tài khoản, xây dựng bot và để chiến thuật của bạn lên tiếng.</p>
+
+                    <a href="/register.html" class="btn btn-primary btn-large">
+                        Tạo tài khoản miễn phí <span class="button-arrow">→</span>
+                    </a>
+                </div>
+
+                <div class="workflow-steps">
+                    <article class="workflow-step">
+                        <div class="step-number">01</div>
+                        <div class="step-content">
+                            <h3>Tạo tài khoản</h3>
+                            <p>Tham gia cộng đồng và thiết lập hồ sơ của bạn.</p>
+                        </div>
+                        <div class="step-check">✓</div>
+                    </article>
+
+                    <article class="workflow-step">
+                        <div class="step-number">02</div>
+                        <div class="step-content">
+                            <h3>Xây dựng bot</h3>
+                            <p>Tạo bot và lập trình cách bot lựa chọn từng nước đi.</p>
+                        </div>
+                        <div class="step-check">⌘</div>
+                    </article>
+
+                    <article class="workflow-step">
+                        <div class="step-number">03</div>
+                        <div class="step-content">
+                            <h3>Bước vào đấu trường</h3>
+                            <p>Đấu với bot khác, xem lại kết quả và hoàn thiện chiến thuật.</p>
+                        </div>
+                        <div class="step-check">↗</div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="cta-section container">
+            <div class="cta-card">
+                <div class="cta-decoration cta-decoration-one"></div>
+                <div class="cta-decoration cta-decoration-two"></div>
+
+                <div class="cta-content">
+                    <span class="cta-kicker"><span>✦</span> THỬ THÁCH TIẾP THEO BẮT ĐẦU TỪ ĐÂY</span>
+                    <h2>Sẵn sàng thử sức<br>với chính bot của bạn?</h2>
+                    <p>Trận đấu đầu tiên chỉ là khởi đầu. Hãy tạo một bot thật khôn ngoan và xem chiến thuật của bạn tiến xa đến đâu.</p>
+                    <a href="/register.html" class="btn btn-white btn-large">
+                        Tham gia đấu trường <span class="button-arrow">→</span>
+                    </a>
+                </div>
+
+                <div class="cta-graphic" aria-hidden="true">
+                    <div class="cta-ring ring-one"></div>
+                    <div class="cta-ring ring-two"></div>
+                    <div class="cta-core">OTT<span>ARENA</span></div>
+                    <span class="cta-spark spark-one">✦</span>
+                    <span class="cta-spark spark-two">✳</span>
+                    <span class="cta-spark spark-three">✧</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-main">
+            <div class="footer-brand">
+                <a href="/" class="brand">
+                    <span class="brand-icon">
+                        <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                            <rect width="40" height="40" rx="13" fill="url(#footerGradient)"/>
+                            <path d="M11 13L17 20L11 27M20 27H29" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            <defs>
+                                <linearGradient id="footerGradient" x1="0" y1="0" x2="40" y2="40">
+                                    <stop stop-color="#7773FF"/>
+                                    <stop offset="1" stop-color="#5948DF"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </span>
+                    <span class="brand-name">OTT<span>ARENA</span></span>
+                </a>
+
+                <p>Nơi hội tụ của lập trình, sáng tạo<br>và những màn đấu trí hấp dẫn.</p>
+            </div>
+
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4>Khám phá</h4>
+                    <a href="#features">Tính năng</a>
+                    <a href="#how-it-works">Cách chơi</a>
+                    <a href="#arena-preview">Đấu trường</a>
+                </div>
+
+                <div class="footer-column">
+                    <h4>Tài khoản</h4>
+                    <a href="/login.html">Đăng nhập</a>
+                    <a href="/register.html">Tạo tài khoản</a>
+                </div>
+
+                <div class="footer-column">
+                    <h4>Nền tảng</h4>
+                    <a href="#features">Tạo bot</a>
+                    <a href="#how-it-works">Trận đấu</a>
+                    <a href="#features">Tiến bộ</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="container footer-bottom">
+            <span>© <span id="currentYear"></span> OTT Code Arena</span>
+            <span>Dành cho những tâm hồn ham khám phá <span class="footer-heart">♥</span></span>
+        </div>
+    </footer>
+</body>
+</html>

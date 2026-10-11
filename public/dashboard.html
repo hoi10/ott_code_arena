@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f8fc">
+
+  <title>Tổng quan | Code Arena</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css?v=20261011-dashboard-column-order">
+  <link rel="stylesheet" href="/css/social-notifications.css">
+</head>
+
+<body class="dashboard-page">
+
+  <div class="dashboard-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+      <a href="/dashboard.html" class="brand">
+        <div class="brand-icon">⚡</div>
+        <span>Code<span class="brand-highlight">Arena</span></span>
+      </a>
+
+      <div class="sidebar-section">
+        <p class="sidebar-label">KHU VỰC LÀM VIỆC</p>
+
+        <nav class="sidebar-nav">
+          <a href="/dashboard.html" class="nav-item active" data-nav="dashboard.html">
+            <span class="nav-icon">▦</span>
+            <span>Tổng quan</span>
+          </a>
+
+          <a href="/bots.html" class="nav-item" data-nav="bots.html">
+            <span class="nav-icon">🤖</span>
+            <span>Bot của tôi</span>
+          </a>
+
+          <a href="/matches.html" class="nav-item" data-nav="matches.html">
+            <span class="nav-icon">⚔️</span>
+            <span>Trận đấu</span>
+          </a>
+
+          <a href="/friends.html" class="nav-item" data-nav="friends.html">
+            <span class="nav-icon">👥</span>
+            <span>Bạn bè</span>
+          </a>
+
+          <a href="/submissions.html" class="nav-item" data-nav="submissions.html">
+            <span class="nav-icon">📝</span>
+            <span>Test bot</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-section">
+        <p class="sidebar-label">TÀI KHOẢN</p>
+
+        <nav class="sidebar-nav">
+          <a href="/profile.html" class="nav-item" data-nav="profile.html">
+            <span class="nav-icon">👤</span>
+            <span>Hồ sơ cá nhân</span>
+          </a>
+
+          <a href="/settings.html" class="nav-item" data-nav="settings.html">
+            <span class="nav-icon">⚙️</span>
+            <span>Cài đặt</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-bottom">
+
+        <div class="upgrade-card">
+          <div class="upgrade-icon">🚀</div>
+          <h3>Sẵn sàng so tài?</h3>
+          <p>Tạo bot của bạn và bước vào đấu trường.</p>
+          <button class="btn btn-upgrade" id="sidebarCreateBotBtn">
+            Tạo bot <span>↗</span>
+          </button>
+        </div>
+
+        <div class="sidebar-user">
+          <div class="user-avatar" id="userAvatar">P</div>
+
+          <div class="sidebar-user-info">
+            <strong id="userName">Người chơi</strong>
+            <span id="userEmail">Thành viên Code Arena</span>
+          </div>
+
+          <button
+            class="icon-button logout-icon"
+            id="logoutBtn"
+            type="button"
+            title="Đăng xuất"
+            aria-label="Đăng xuất"
+          >
+            ↪
+          </button>
+        </div>
+
+      </div>
+
+    </aside>
+
+    <button
+      class="dashboard-sidebar-overlay"
+      id="sidebarOverlay"
+      type="button"
+      aria-label="Đóng menu"
+    ></button>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+      <!-- TOPBAR -->
+      <header class="topbar">
+
+        <div class="topbar-left">
+          <button
+            class="icon-button menu-toggle"
+            id="menuToggle"
+            type="button"
+            aria-label="Mở menu"
+            aria-expanded="false"
+          >
+            ☰
+          </button>
+
+          <div class="breadcrumb">
+            <span>Khu vực làm việc</span>
+            <span class="breadcrumb-separator">/</span>
+            <strong>Tổng quan</strong>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="system-status">
+            <span class="status-dot"></span>
+            <span>Hệ thống đang hoạt động</span>
+          </div>
+
+          <div class="topbar-divider"></div>
+
+          <button
+            class="topbar-avatar"
+            id="topbarAvatarButton"
+            type="button"
+            title="Tài khoản"
+            aria-label="Mở hồ sơ cá nhân"
+        >
+            <span id="topbarAvatar">N</span>
+        </button>
+        </div>
+
+      </header>
+
+      <!-- PAGE CONTENT -->
+      <div class="page-content">
+
+        <!-- WELCOME -->
+        <section class="welcome-section">
+
+          <div class="welcome-content">
+            <div class="welcome-eyebrow">
+              <span class="welcome-eyebrow-icon">✦</span>
+              TRUNG TÂM ĐIỀU KHIỂN CỦA BẠN
+            </div>
+
+            <h1>Chào mừng trở lại, <span id="welcomeName">người chơi</span>! 👋</h1>
+
+            <p>
+              Chiến thuật tiếp theo của bạn bắt đầu từ đây.
+              Tạo bot thông minh hơn, so tài và vươn lên dẫn đầu.
+            </p>
+
+            <div class="welcome-actions">
+              <button class="btn btn-primary" id="createBotBtn" type="button">
+                <span>＋</span>
+                Tạo bot mới
+              </button>
+
+              <a href="/matches.html" class="btn btn-secondary">
+                Khám phá trận đấu
+                <span>↗</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="welcome-illustration" aria-hidden="true">
+            <div class="illustration-glow"></div>
+            <div class="illustration-orbit orbit-one"></div>
+            <div class="illustration-orbit orbit-two"></div>
+            <div class="illustration-core">
+              <span>⚡</span>
+            </div>
+            <div class="floating-chip chip-one">AI</div>
+            <div class="floating-chip chip-two">{"{ }"}</div>
+            <div class="floating-chip chip-three">🏆</div>
+            <div class="illustration-stars">✦　·　✧</div>
+          </div>
+
+        </section>
+
+        <!-- STATISTICS -->
+        <section class="stats-grid">
+
+          <a class="stat-card" href="/bots.html" aria-label="Xem danh sách bot của bạn">
+            <div class="stat-card-top">
+              <div class="stat-icon stat-icon-purple">🤖</div>
+              <span class="stat-label">BOT CỦA TÔI</span>
+            </div>
+
+            <div class="stat-value" id="totalBots">—</div>
+
+            <div class="stat-footer">
+              <span class="stat-footer-icon">✦</span>
+              <span>Số bot bạn đã tạo</span>
+            </div>
+          </a>
+
+          <article class="stat-card">
+            <div class="stat-card-top">
+              <div class="stat-icon stat-icon-blue">⚔️</div>
+              <span class="stat-label">TRẬN ĐẤU</span>
+            </div>
+
+            <div class="stat-value" id="totalMatches">—</div>
+
+            <div class="stat-footer">
+              <span class="stat-footer-icon">✦</span>
+              <span>Tổng số trận đã chơi</span>
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-card-top">
+              <div class="stat-icon stat-icon-green">🏆</div>
+              <span class="stat-label">CHIẾN THẮNG</span>
+            </div>
+
+            <div class="stat-value" id="totalWins">—</div>
+
+            <div class="stat-footer">
+              <span class="stat-footer-icon">✦</span>
+              <span>Số trận bạn đã thắng</span>
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-card-top">
+              <div class="stat-icon stat-icon-orange">📈</div>
+              <span>TỈ LỆ THẮNG</span>
+            </div>
+
+            <div class="stat-value" id="winRate">—</div>
+
+            <div class="stat-footer">
+              <span class="stat-footer-icon">✦</span>
+              <span>Tỉ lệ trận thắng của bạn</span>
+            </div>
+          </article>
+
+        </section>
+
+        <!-- MAIN GRID -->
+        <div class="dashboard-grid">
+
+          <!-- MY BOTS -->
+          <section class="content-card bots-section">
+
+            <div class="section-header">
+              <div>
+                <div class="section-title-row">
+                  <span class="section-title-icon">🤖</span>
+                  <h2>Bot của tôi</h2>
+                </div>
+                <p class="section-description">
+                  Quản lý các bot do bạn tạo.
+                </p>
+              </div>
+
+              <button class="btn btn-small btn-secondary" id="viewAllBotsBtn" type="button">
+                Xem tất cả <span>→</span>
+              </button>
+            </div>
+
+            <div class="bots-list" id="botsList">
+              <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Đang tải danh sách bot...</p>
+              </div>
+            </div>
+
+          </section>
+
+          <!-- RECENT MATCHES -->
+          <section class="content-card matches-section">
+
+            <div class="section-header">
+              <div>
+                <div class="section-title-row">
+                  <span class="section-title-icon">⚔️</span>
+                  <h2>Trận đấu gần đây</h2>
+                </div>
+                <p class="section-description">
+                  Những trận đấu mới nhất của bạn.
+                </p>
+              </div>
+
+              <a href="/matches.html" class="text-link">
+                Xem tất cả <span>→</span>
+              </a>
+            </div>
+
+            <div class="matches-list" id="matchesList">
+              <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Đang tải trận đấu...</p>
+              </div>
+            </div>
+
+          </section>
+
+          <!-- RECENT SUBMISSIONS -->
+          <section class="content-card submissions-section">
+
+            <div class="section-header">
+              <div>
+                <div class="section-title-row">
+                  <span class="section-title-icon">📝</span>
+                  <h2>Các lần test bot gần đây</h2>
+                </div>
+                <p class="section-description">
+                  Theo dõi kết quả những lần chạy thử bot gần nhất.
+                </p>
+              </div>
+
+              <a href="/submissions.html" class="text-link">
+                Xem tất cả <span>→</span>
+              </a>
+            </div>
+
+            <div class="submissions-list" id="submissionsList">
+              <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Đang tải lịch sử test bot...</p>
+              </div>
+            </div>
+
+          </section>
+
+          <!-- QUICK ACTIONS -->
+          <section class="content-card quick-actions-section">
+
+            <div class="section-header">
+              <div>
+                <div class="section-title-row">
+                  <span class="section-title-icon">✨</span>
+                  <h2>Lối tắt</h2>
+                </div>
+                <p class="section-description">
+                  Bắt đầu ngay với những việc bạn muốn làm.
+                </p>
+              </div>
+            </div>
+
+            <div class="quick-actions-grid">
+
+              <a href="/create-bot.html" class="quick-action">
+                <div class="quick-action-icon quick-action-purple">＋</div>
+                <div class="quick-action-text">
+                  <strong>Tạo bot</strong>
+                  <span>Xây dựng đối thủ tiếp theo</span>
+                </div>
+                <span class="quick-action-arrow">↗</span>
+              </a>
+
+              <a href="/matches.html" class="quick-action">
+                <div class="quick-action-icon quick-action-blue">⚔</div>
+                <div class="quick-action-text">
+                  <strong>Vào trận đấu</strong>
+                  <span>Khám phá đấu trường</span>
+                </div>
+                <span class="quick-action-arrow">↗</span>
+              </a>
+
+              <a href="/submissions.html" class="quick-action">
+                <div class="quick-action-icon quick-action-green">⌘</div>
+                <div class="quick-action-text">
+                  <strong>Test bot</strong>
+                  <span>Xem lại các lần chạy thử</span>
+                </div>
+                <span class="quick-action-arrow">↗</span>
+              </a>
+
+              <a href="/profile.html" class="quick-action">
+                <div class="quick-action-icon quick-action-orange">👤</div>
+                <div class="quick-action-text">
+                  <strong>Hồ sơ cá nhân</strong>
+                  <span>Quản lý tài khoản của bạn</span>
+                </div>
+                <span class="quick-action-arrow">↗</span>
+              </a>
+
+            </div>
+
+          </section>
+
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="dashboard-footer">
+          <p>© 2026 Code Arena. Dành cho người thích tư duy và đam mê so tài.</p>
+          <div class="footer-links">
+            <a href="#">Tài liệu</a>
+            <a href="#">Hỗ trợ</a>
+          </div>
+        </footer>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/social-notifications.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/dashboard.js?v=20261011-submission-status-scope"></script>
+
+</body>
+</html>

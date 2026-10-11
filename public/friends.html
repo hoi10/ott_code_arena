@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f8fc">
+  <title>Bạn bè | Code Arena</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/friends.css">
+  <link rel="stylesheet" href="/css/social-notifications.css">
+</head>
+<body class="friends-page">
+  <main class="friends-shell">
+    <nav class="friends-nav" aria-label="Điều hướng">
+      <a class="friends-brand" href="/dashboard.html"><span class="friends-brand-mark">⚡</span> Code<span>Arena</span></a>
+      <div class="friends-nav-links">
+        <a href="/dashboard.html">Tổng quan</a>
+        <a href="/matches.html">Phòng đấu</a>
+        <a class="active" href="/friends.html" aria-current="page">Bạn bè</a>
+      </div>
+    </nav>
+
+    <header class="friends-hero">
+      <div class="friends-hero-copy">
+        <span class="friends-eyebrow"><span></span> KẾT NỐI ĐẤU TRƯỜNG</span>
+        <h1>Đồng đội hôm nay,<br><span>đối thủ trên bàn cờ.</span></h1>
+        <p>Tìm bạn, theo dõi ai đang trực tuyến và bắt đầu một trận đấu chỉ với một lời mời.</p>
+      </div>
+      <div class="friends-hero-art" aria-hidden="true">
+        <span class="friends-orbit friends-orbit-one"></span>
+        <span class="friends-orbit friends-orbit-two"></span>
+        <span class="friends-hero-piece">✦</span>
+        <span class="friends-hero-chip friends-chip-one">🤝</span>
+        <span class="friends-hero-chip friends-chip-two">⚔️</span>
+      </div>
+    </header>
+
+    <section class="friends-stats" aria-label="Tóm tắt bạn bè">
+      <article class="friends-stat">
+        <span class="friends-stat-icon purple">♙</span>
+        <span><strong id="friendCount">—</strong><small>BẠN BÈ</small></span>
+      </article>
+      <article class="friends-stat">
+        <span class="friends-stat-icon green"><i></i></span>
+        <span><strong id="onlineFriendCount">—</strong><small>ĐANG TRỰC TUYẾN</small></span>
+      </article>
+      <article class="friends-stat">
+        <span class="friends-stat-icon amber">✉</span>
+        <span><strong id="pendingFriendCount">—</strong><small>LỜI MỜI ĐẾN</small></span>
+      </article>
+    </section>
+
+    <section class="friends-card friends-search-card">
+      <div class="friends-card-heading">
+        <div class="friends-heading-icon">⌕</div>
+        <div>
+          <span class="friends-section-kicker">MỞ RỘNG MẠNG LƯỚI</span>
+          <h2>Tìm người chơi</h2>
+          <p>Tìm theo tên tài khoản và gửi lời mời kết bạn.</p>
+        </div>
+      </div>
+      <form id="friendSearchForm" class="friends-search-form">
+        <label class="friends-search-field" for="friendSearchInput">
+          <span aria-hidden="true">⌕</span>
+          <input id="friendSearchInput" name="query" type="search" minlength="1" maxlength="50" placeholder="Nhập tên người chơi..." autocomplete="off" required>
+        </label>
+        <button class="btn btn-primary" type="submit"><span aria-hidden="true">＋</span> Tìm bạn</button>
+      </form>
+      <div id="friendSearchResults" class="friend-list friends-search-results" aria-live="polite"></div>
+    </section>
+
+    <div class="friends-columns">
+      <section class="friends-card">
+        <div class="friends-card-heading compact">
+          <div class="friends-heading-icon amber">✉</div>
+          <div>
+            <span class="friends-section-kicker">ĐANG CHỜ PHẢN HỒI</span>
+            <h2>Lời mời kết bạn</h2>
+          </div>
+        </div>
+        <div class="friends-subsection">
+          <h3>Lời mời đến <span id="incomingRequestCount">0</span></h3>
+          <div id="incomingFriendRequests" class="friend-list"></div>
+        </div>
+        <div class="friends-subsection sent-requests">
+          <h3>Đã gửi</h3>
+          <div id="outgoingFriendRequests" class="friend-list"></div>
+        </div>
+      </section>
+      <section class="friends-card">
+        <div class="friends-card-heading compact">
+          <div class="friends-heading-icon green">♙</div>
+          <div>
+            <span class="friends-section-kicker">SẴN SÀNG SO TÀI</span>
+            <h2>Danh sách bạn bè</h2>
+          </div>
+        </div>
+        <div id="friendList" class="friend-list friends-roster" aria-live="polite"></div>
+      </section>
+    </div>
+  </main>
+  <script src="/js/api.js"></script>
+  <script src="/js/social-notifications.js"></script>
+  <script src="/js/friends.js"></script>
+</body>
+</html>

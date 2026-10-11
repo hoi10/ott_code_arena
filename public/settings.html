@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f8fc">
+  <title>Cài đặt | Code Arena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/social-notifications.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/settings.css">
+</head>
+<body class="dashboard-page account-page settings-page">
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <a class="btn btn-secondary" href="/dashboard.html">← Tổng quan</a>
+        <div class="breadcrumb"><span>Tài khoản</span><span class="breadcrumb-separator">/</span><strong>Cài đặt</strong></div>
+      </div>
+      <nav class="account-nav" aria-label="Điều hướng tài khoản">
+        <a href="/profile.html">Hồ sơ</a>
+        <a href="/settings.html" aria-current="page">Cài đặt</a>
+        <a href="/submissions.html">Test bot</a>
+      </nav>
+    </header>
+
+    <div class="page-content account-content">
+      <header class="account-heading">
+        <div>
+          <p class="account-eyebrow">BẢO MẬT TÀI KHOẢN</p>
+          <h1>Cài đặt</h1>
+          <p>Đổi mật khẩu để bảo vệ tài khoản của bạn.</p>
+        </div>
+      </header>
+
+      <section class="content-card account-settings-card">
+        <div class="account-card-heading">
+          <div>
+            <h2>Đổi mật khẩu</h2>
+            <p>Nhập mật khẩu hiện tại để xác nhận thay đổi.</p>
+          </div>
+          <span class="settings-lock-icon" aria-hidden="true">🔒</span>
+        </div>
+        <form id="passwordForm" class="account-form">
+          <label for="currentPassword">Mật khẩu hiện tại</label>
+          <input id="currentPassword" name="currentPassword" type="password" autocomplete="current-password" minlength="8" maxlength="72" required>
+          <label for="newPassword">Mật khẩu mới</label>
+          <input id="newPassword" name="newPassword" type="password" autocomplete="new-password" minlength="8" maxlength="72" required>
+          <small>Dùng ít nhất 8 ký tự. Không dùng lại mật khẩu ở dịch vụ khác.</small>
+          <label for="confirmPassword">Xác nhận mật khẩu mới</label>
+          <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="72" required>
+          <div id="settingsMessage" class="account-message" role="status" aria-live="polite" hidden></div>
+          <button class="btn btn-primary" type="submit">Cập nhật mật khẩu</button>
+        </form>
+      </section>
+
+      <section class="content-card settings-note">
+        <h2>Email và phiên đăng nhập</h2>
+        <p>Thay đổi email hiện chưa được bật vì ứng dụng chưa có bước xác minh email. Mật khẩu mới không tự kết thúc các phiên đã đăng nhập trên thiết bị khác; tính năng thu hồi các phiên từ xa hiện chưa được hỗ trợ.</p>
+        <button id="settingsLogoutBtn" class="btn btn-secondary" type="button">Đăng xuất thiết bị này</button>
+      </section>
+    </div>
+  </main>
+  <script src="/js/api.js"></script>
+  <script src="/js/social-notifications.js"></script>
+  <script src="/js/settings.js"></script>
+</body>
+</html>

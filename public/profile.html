@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f8fc">
+  <title>Hồ sơ | Code Arena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/social-notifications.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/profile.css">
+</head>
+<body class="dashboard-page account-page profile-page">
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <a class="btn btn-secondary" href="/dashboard.html">← Tổng quan</a>
+        <div class="breadcrumb"><span>Tài khoản</span><span class="breadcrumb-separator">/</span><strong>Hồ sơ</strong></div>
+      </div>
+      <nav class="account-nav" aria-label="Điều hướng tài khoản">
+        <a href="/profile.html" aria-current="page">Hồ sơ</a>
+        <a href="/settings.html">Cài đặt</a>
+        <a href="/submissions.html">Test bot</a>
+      </nav>
+    </header>
+
+    <div class="page-content account-content">
+      <header class="account-heading">
+        <div>
+          <p class="account-eyebrow">TÀI KHOẢN CỦA BẠN</p>
+          <h1>Hồ sơ cá nhân</h1>
+          <p>Quản lý thông tin và xem hoạt động của bạn trên Code Arena.</p>
+        </div>
+      </header>
+
+      <div class="account-grid">
+        <section class="content-card profile-summary-card">
+          <div class="profile-avatar" id="profileAvatar" aria-hidden="true">P</div>
+          <h2 id="profileDisplayName">Đang tải hồ sơ...</h2>
+          <p id="profileEmail" class="profile-email"></p>
+          <p id="profileJoined" class="profile-joined"></p>
+          <a class="btn btn-secondary" href="/settings.html">Cài đặt bảo mật</a>
+        </section>
+
+        <section class="content-card">
+          <div class="account-card-heading">
+            <div>
+              <h2>Thông tin hồ sơ</h2>
+              <p>Tên người dùng xuất hiện trong workspace của bạn.</p>
+            </div>
+          </div>
+          <form id="profileForm" class="account-form">
+            <label for="profileUsername">Tên người dùng</label>
+            <input id="profileUsername" name="username" type="text" minlength="3" maxlength="50" pattern="[A-Za-z0-9_]+" autocomplete="username" required>
+            <small>Dùng từ 3–50 ký tự: chữ cái, chữ số và dấu gạch dưới.</small>
+            <label for="profileEmailInput">Email</label>
+            <input id="profileEmailInput" type="email" readonly aria-describedby="emailHelp">
+            <small id="emailHelp">Email hiện chỉ dùng để đăng nhập; cần xác minh email trước khi có thể thay đổi.</small>
+            <div id="profileMessage" class="account-message" role="status" aria-live="polite" hidden></div>
+            <button class="btn btn-primary" type="submit">Lưu hồ sơ</button>
+          </form>
+        </section>
+      </div>
+
+      <section class="account-stats-grid" aria-label="Thống kê hoạt động">
+        <article class="content-card account-stat-card"><span>Bot đã tạo</span><strong id="profileBotCount">—</strong></article>
+        <article class="content-card account-stat-card"><span>Trận đã chơi</span><strong id="profileMatchCount">—</strong></article>
+        <article class="content-card account-stat-card"><span>Trận thắng</span><strong id="profileWinCount">—</strong></article>
+        <article class="content-card account-stat-card"><span>Lượt kiểm tra bot</span><strong id="profileSubmissionCount">—</strong></article>
+      </section>
+    </div>
+  </main>
+  <script src="/js/api.js"></script>
+  <script src="/js/social-notifications.js"></script>
+  <script src="/js/profile.js"></script>
+</body>
+</html>

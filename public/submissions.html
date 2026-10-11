@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f8fc">
+  <title>Test bot | Code Arena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/social-notifications.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/submissions.css">
+</head>
+<body class="dashboard-page account-page submissions-page">
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <a class="btn btn-secondary" href="/dashboard.html">← Tổng quan</a>
+        <div class="breadcrumb"><span>Khu vực làm việc</span><span class="breadcrumb-separator">/</span><strong>Test bot</strong></div>
+      </div>
+      <nav class="account-nav" aria-label="Điều hướng tài khoản">
+        <a href="/profile.html">Hồ sơ</a>
+        <a href="/settings.html">Cài đặt</a>
+        <a href="/submissions.html" aria-current="page">Test bot</a>
+      </nav>
+    </header>
+
+    <div class="page-content account-content">
+      <header class="account-heading">
+        <div>
+          <p class="account-eyebrow">KIỂM TRA CHIẾN THUẬT</p>
+          <h1>Test bot</h1>
+          <p>Chạy thử bot trên thế cờ mẫu, xem kết quả và tra cứu lịch sử kiểm thử.</p>
+        </div>
+      </header>
+
+      <section class="content-card submission-create-card">
+        <div class="account-card-heading">
+          <div>
+            <h2>Chạy thử bot</h2>
+            <p>Bot sẽ đi một lượt trên bàn cờ mẫu mới. Đây là lượt kiểm thử, không phải trận đấu xếp hạng.</p>
+          </div>
+        </div>
+        <form id="submissionForm" class="account-form">
+          <label for="submissionBot">Chọn bot đã lưu (không bắt buộc)</label>
+          <div class="submission-bot-row">
+            <select id="submissionBot" name="botId">
+              <option value="">Chọn bot để dùng mã đã lưu</option>
+            </select>
+            <button id="loadBotCodeBtn" class="btn btn-secondary" type="button">Dùng mã bot này</button>
+          </div>
+          <label for="submissionCode">Mã nguồn JavaScript</label>
+          <textarea id="submissionCode" name="sourceCode" rows="12" maxlength="100000" spellcheck="false" placeholder="Chọn bot đã lưu hoặc dán mã bot vào đây."></textarea>
+          <small>Nếu đã nhập mã nguồn, hệ thống sẽ kiểm tra đoạn mã đó. Bạn có thể chọn bot để gắn kết quả với bot tương ứng.</small>
+          <div id="submissionMessage" class="account-message" role="status" aria-live="polite" hidden></div>
+          <button id="submitSubmissionBtn" class="btn btn-primary" type="submit">Chạy test bot</button>
+        </form>
+        <div id="submissionResult" class="submission-result" aria-live="polite" hidden></div>
+      </section>
+
+      <section class="submission-history-section">
+        <div class="submission-history-heading">
+          <div>
+            <h2>Lịch sử test bot</h2>
+            <p id="submissionPageLabel">Đang tải lịch sử kiểm thử...</p>
+          </div>
+          <div class="submission-pagination">
+            <button id="previousPageBtn" class="btn btn-secondary" type="button" disabled>← Mới hơn</button>
+            <button id="nextPageBtn" class="btn btn-secondary" type="button" disabled>Cũ hơn →</button>
+          </div>
+        </div>
+        <div id="submissionsList" class="submission-list" aria-live="polite">
+          <div class="loading-state"><div class="loading-spinner"></div><p>Đang tải lịch sử kiểm thử...</p></div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <script src="/js/api.js"></script>
+  <script src="/js/social-notifications.js"></script>
+  <script src="/js/submissions.js"></script>
+</body>
+</html>

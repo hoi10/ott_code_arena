@@ -1,0 +1,57 @@
+.social-toast {
+  position: fixed;
+  z-index: 1100;
+  top: 18px;
+  left: 50%;
+  width: min(560px, calc(100% - 32px));
+  padding: 14px 18px;
+  color: #2b2764;
+  background: #fff;
+  border: 1px solid #d9d4ff;
+  border-radius: 14px;
+  box-shadow: 0 14px 42px rgb(32 33 57 / 18%);
+  transform: translateX(-50%);
+}
+
+.social-toast.error {
+  color: #a92f4a;
+  border-color: #f3cbd3;
+  background: #fff7f8;
+}
+
+.social-dialog {
+  width: min(480px, calc(100% - 32px));
+  padding: 0;
+  margin: auto;
+  color: var(--text, #202139);
+  border: 0;
+  border-radius: 20px;
+  box-shadow: 0 24px 70px rgb(32 33 57 / 25%);
+}
+
+.social-dialog::backdrop {
+  background: rgb(20 22 42 / 52%);
+  backdrop-filter: blur(3px);
+}
+
+.social-dialog-content {
+  padding: 28px;
+}
+
+.social-dialog-title {
+  margin-bottom: 8px;
+  font-size: 22px;
+}
+
+.social-dialog-message {
+  color: var(--text-secondary, #6d6f84);
+  line-height: 1.6;
+}
+
+.social-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}

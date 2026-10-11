@@ -1,0 +1,129 @@
+.bot-guide-page {
+    width: min(920px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 30px 0 72px;
+}
+
+.bot-guide-heading {
+    padding: 52px 0 36px;
+}
+
+.bot-guide-heading h1 {
+    margin: 12px 0;
+    font-family: var(--font-heading);
+    font-size: clamp(32px, 5vw, 48px);
+}
+
+.bot-guide-heading p {
+    max-width: 680px;
+    margin: 0 0 22px;
+    color: var(--text-secondary);
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+.bot-guide-card {
+    padding: 26px;
+    margin: 18px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.bot-guide-card h2 {
+    margin: 0 0 12px;
+    font-family: var(--font-heading);
+    font-size: 19px;
+}
+
+.bot-guide-card p,
+.bot-guide-card li {
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.75;
+}
+
+.bot-guide-card ul {
+    display: grid;
+    gap: 8px;
+    padding-left: 22px;
+    margin-bottom: 0;
+}
+
+.bot-guide-card code {
+    padding: 2px 5px;
+    color: #5140c4;
+    background: #f1efff;
+    border-radius: 5px;
+    font-size: 0.92em;
+}
+
+.bot-guide-card pre {
+    padding: 20px;
+    overflow-x: auto;
+    color: #e6e8f2;
+    background: #1c1d2b;
+    border-radius: 12px;
+    line-height: 1.7;
+}
+
+.bot-guide-card pre code {
+    padding: 0;
+    color: inherit;
+    background: transparent;
+    font-size: 13px;
+}
+
+.bot-guide-fields {
+    display: grid;
+    gap: 10px;
+    margin: 20px 0 0;
+}
+
+.bot-guide-fields > div {
+    display: grid;
+    grid-template-columns: minmax(190px, 0.8fr) 1.5fr;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.bot-guide-fields dt {
+    font-weight: 700;
+}
+
+.bot-guide-fields dd {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.bot-guide-back {
+    display: inline-block;
+    margin-top: 16px;
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+@media (max-width: 600px) {
+    .bot-guide-page {
+        width: min(100% - 28px, 920px);
+        padding-top: 20px;
+    }
+
+    .bot-guide-heading {
+        padding: 36px 0 26px;
+    }
+
+    .bot-guide-card {
+        padding: 20px;
+    }
+
+    .bot-guide-fields > div {
+        grid-template-columns: 1fr;
+        gap: 5px;
+    }
+}

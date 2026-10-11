@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Hướng dẫn viết bot JavaScript chơi Kéo, Búa, Bao trên bàn cờ OTT Code Arena.">
+    <title>Hướng dẫn viết bot | OTT Code Arena</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/bot-guide.css">
+</head>
+<body>
+    <main class="bot-guide-page">
+        <nav class="page-breadcrumb" aria-label="Điều hướng cấp trang">
+            <a href="/dashboard.html">Tổng quan</a>
+            <span>/</span>
+            <a href="/create-bot.html">Tạo bot</a>
+            <span>/</span>
+            <span>Hướng dẫn viết bot</span>
+        </nav>
+
+        <header class="bot-guide-heading">
+            <span class="section-kicker">CẨM NANG LẬP TRÌNH</span>
+            <h1>Hướng dẫn viết bot</h1>
+            <p>Bot là một đoạn JavaScript chọn nước đi cho quân của bạn. Hãy bắt đầu từ ví dụ đơn giản, sau đó bổ sung chiến thuật theo cách riêng.</p>
+            <a class="btn btn-primary" href="/create-bot.html">Bắt đầu tạo bot</a>
+        </header>
+
+        <section class="bot-guide-card">
+            <h2>Bot nhận dữ liệu gì?</h2>
+            <p>Mỗi lượt, chương trình nhận một đối tượng tên <code>input</code>. Các trường hữu ích gồm:</p>
+            <dl class="bot-guide-fields">
+                <div><dt><code>input.legalMoves</code></dt><dd>Mảng các nước đi hợp lệ ở lượt này. Nếu không có nước đi, mảng sẽ rỗng.</dd></div>
+                <div><dt><code>input.pieces.own</code></dt><dd>Các quân của bạn; mỗi quân có <code>id</code>, <code>type</code>, <code>x</code> và <code>y</code>.</dd></div>
+                <div><dt><code>input.pieces.opponent</code></dt><dd>Các quân của đối thủ trên bàn cờ.</dd></div>
+                <div><dt><code>input.target</code></dt><dd>Tọa độ nhà chính đối phương mà bạn cần đưa quân tới.</dd></div>
+                <div><dt><code>input.home</code></dt><dd>Tọa độ nhà chính của bạn.</dd></div>
+                <div><dt><code>input.turn</code> và <code>input.boardSize</code></dt><dd>Lượt hiện tại và kích thước bàn cờ (9 × 9).</dd></div>
+                <div><dt><code>input.rules</code></dt><dd>Thông tin các loại quân, luật ăn quân và cách di chuyển.</dd></div>
+            </dl>
+        </section>
+
+        <section class="bot-guide-card">
+            <h2>Bot cần trả về gì?</h2>
+            <p>Hãy trả về một đối tượng gồm mã quân và tọa độ đích. Có thể chọn trực tiếp một phần tử trong <code>legalMoves</code>:</p>
+            <pre><code>{
+  pieceId: move.pieceId,
+  to: { x: move.to.x, y: move.to.y }
+}</code></pre>
+            <p>Nếu không có nước đi, trả về <code>null</code>. Chỉ sử dụng nước đi trong <code>legalMoves</code> để tránh chọn sai quân, đi ra ngoài bàn hoặc ăn nhầm quân không khắc chế được.</p>
+        </section>
+
+        <section class="bot-guide-card">
+            <h2>Ví dụ bot đầu tiên</h2>
+            <p>Bot dưới đây ưu tiên ăn quân, nếu chưa ăn được thì chọn nước đi giúp tiến gần hơn tới nhà chính đối phương:</p>
+            <pre><code>const moves = input.legalMoves || [];
+
+const bestMove = [...moves].sort((a, b) =&gt; {
+  const captureA = a.capturePieceId ? 1 : 0;
+  const captureB = b.capturePieceId ? 1 : 0;
+  if (captureA !== captureB) return captureB - captureA;
+
+  const distanceA =
+    Math.abs(a.to.x - input.target.x) +
+    Math.abs(a.to.y - input.target.y);
+  const distanceB =
+    Math.abs(b.to.x - input.target.x) +
+    Math.abs(b.to.y - input.target.y);
+  return distanceA - distanceB;
+})[0];
+
+if (!bestMove) return null;
+
+return {
+  pieceId: bestMove.pieceId,
+  to: { x: bestMove.to.x, y: bestMove.to.y }
+};</code></pre>
+        </section>
+
+        <section class="bot-guide-card">
+            <h2>Những điều cần nhớ</h2>
+            <ul>
+                <li>Bàn cờ có 9 hàng và 9 cột; tọa độ <code>x</code>, <code>y</code> bắt đầu từ 0.</li>
+                <li>Mỗi quân đi tối đa một ô theo một trong tám hướng.</li>
+                <li>Búa ăn Kéo, Kéo ăn Bao, Bao ăn Búa. Hai quân cùng loại không ăn được nhau.</li>
+                <li>Chạm nhà chính đối phương hoặc ăn hết quân đối phương sẽ thắng.</li>
+                <li>Mỗi lượt, mã bot được chạy độc lập. Đừng dựa vào biến toàn cục để ghi nhớ dữ liệu giữa các lượt.</li>
+                <li>Bot chạy trong môi trường giới hạn; không dùng thư viện ngoài, truy cập tệp hay kết nối mạng.</li>
+                <li>Hãy bấm <strong>Kiểm tra nước đi</strong> ở trang tạo bot trước khi lưu bot.</li>
+            </ul>
+        </section>
+
+        <a class="bot-guide-back" href="/create-bot.html">← Quay lại trang tạo bot</a>
+    </main>
+</body>
+</html>

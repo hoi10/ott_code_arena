@@ -1,0 +1,195 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique @db.VarChar(50)
+  email     String   @unique @db.VarChar(255)
+  password  String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bots                      Bot[]
+  submissions               Submission[]
+  hostedRooms               Room[]             @relation("RoomHost")
+  roomSeats                 RoomPlayer[]
+  sentFriendRequests        FriendRequest[]    @relation("FriendRequestSender")
+  receivedFriendRequests    FriendRequest[]    @relation("FriendRequestReceiver")
+  presenceSessions          UserPresence[]
+  sentSocialInvitations     SocialInvitation[] @relation("SocialInvitationSender")
+  receivedSocialInvitations SocialInvitation[] @relation("SocialInvitationReceiver")
+}
+
+model Bot {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(100)
+  description String?  @db.Text
+  sourceCode  String   @db.LongText
+  language    String   @default("javascript") @db.VarChar(30)
+  isActive    Boolean  @default(true)
+  isPublic    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  participants   MatchParticipant[]
+  submissions    Submission[]
+  roomSelections RoomPlayer[]
+}
+
+model Match {
+  id        Int       @id @default(autoincrement())
+  status    String    @default("pending") @db.VarChar(30)
+  winnerId  Int?
+  result    Json?
+  startedAt DateTime?
+  endedAt   DateTime?
+  createdAt DateTime  @default(now())
+  roomId    Int?      @unique
+
+  room Room? @relation(fields: [roomId], references: [id], onDelete: SetNull)
+
+  participants MatchParticipant[]
+}
+
+model Room {
+  id               Int       @id @default(autoincrement())
+  name             String    @unique @db.VarChar(80)
+  password         String?   @db.VarChar(72)
+  passwordHash     String    @db.VarChar(255)
+  visibility       String    @default("public") @db.VarChar(20)
+  status           String    @default("waiting") @db.VarChar(20)
+  hostUserId       Int
+  pausedByUserId   Int?
+  pauseStartedAt   DateTime?
+  rematchStatus    String    @default("none") @db.VarChar(20)
+  rematchExpiresAt DateTime?
+  revision         Int       @default(0)
+  createdAt        DateTime  @default(now())
+
+  hostUser          User               @relation("RoomHost", fields: [hostUserId], references: [id], onDelete: Cascade)
+  players           RoomPlayer[]
+  presences         RoomPresence[]
+  match             Match?
+  socialInvitations SocialInvitation[]
+
+  @@index([visibility, status, createdAt])
+  @@index([hostUserId, status])
+}
+
+model RoomPresence {
+  id         Int      @id @default(autoincrement())
+  roomId     Int
+  sessionId  String   @db.Char(36)
+  userId     Int?
+  lastSeenAt DateTime @default(now()) @updatedAt
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, sessionId])
+  @@index([roomId, lastSeenAt])
+  @@index([lastSeenAt])
+}
+
+model RoomPlayer {
+  id              Int       @id @default(autoincrement())
+  roomId          Int
+  userId          Int
+  slot            Int
+  botId           Int?
+  isReady         Boolean   @default(false)
+  rematchAccepted Boolean   @default(false)
+  pauseUsedMs     Int       @default(0)
+  leftAt          DateTime?
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bot  Bot? @relation(fields: [botId], references: [id], onDelete: SetNull)
+
+  @@unique([roomId, userId])
+  @@unique([roomId, slot])
+  @@index([userId, leftAt])
+}
+
+model MatchParticipant {
+  id       Int     @id @default(autoincrement())
+  matchId  Int
+  botId    Int
+  score    Float   @default(0)
+  isWinner Boolean @default(false)
+
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  bot   Bot   @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  @@unique([matchId, botId])
+}
+
+model Submission {
+  id         Int      @id @default(autoincrement())
+  sourceCode String   @db.LongText
+  language   String   @default("javascript") @db.VarChar(30)
+  status     String   @default("pending") @db.VarChar(30)
+  result     Json?
+  createdAt  DateTime @default(now())
+
+  userId Int
+  botId  Int?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bot  Bot? @relation(fields: [botId], references: [id], onDelete: SetNull)
+}
+
+model FriendRequest {
+  id         Int      @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  status     String   @default("pending") @db.VarChar(20)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  sender   User @relation("FriendRequestSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("FriendRequestReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+  @@index([receiverId, status, createdAt])
+  @@index([senderId, status, createdAt])
+}
+
+model UserPresence {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  sessionId  String   @db.Char(36)
+  lastSeenAt DateTime @default(now()) @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sessionId])
+  @@index([lastSeenAt])
+}
+
+model SocialInvitation {
+  id         Int      @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  roomId     Int?
+  kind       String   @db.VarChar(20)
+  status     String   @default("pending") @db.VarChar(20)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  sender   User  @relation("SocialInvitationSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User  @relation("SocialInvitationReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  room     Room? @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([receiverId, status, expiresAt])
+  @@index([senderId, status, expiresAt])
+  @@index([roomId, kind, status])
+}

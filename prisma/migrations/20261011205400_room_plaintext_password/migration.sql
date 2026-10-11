@@ -1,0 +1,2 @@
+ALTER TABLE `Room`
+    ADD COLUMN `password` VARCHAR(72) NULL;
