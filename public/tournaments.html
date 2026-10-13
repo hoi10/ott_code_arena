@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7f8fc">
+    <title>Giải đấu | OTT Code Arena</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/tournaments.css">
+</head>
+
+<body class="dashboard-page tournaments-page">
+    <main class="main-content">
+        <header class="topbar">
+            <div class="topbar-left">
+                <a class="btn btn-secondary" href="/dashboard.html">← Tổng quan</a>
+                <div class="breadcrumb">
+                    <span>Khu vực làm việc</span>
+                    <span class="breadcrumb-separator">/</span>
+                    <strong>Giải đấu</strong>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <button class="btn btn-primary" id="openCreateBtn" type="button">
+                    <span>＋</span> Tạo giải đấu
+                </button>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <section class="tournaments-page-heading" aria-labelledby="tournamentsTitle">
+                <div>
+                    <h1 id="tournamentsTitle">Giải đấu Round Robin</h1>
+                    <p>Tạo giải, mời bot tham gia và thi đấu theo thể thức vòng tròn — mỗi cặp gặp nhau hai lượt đổi bên.</p>
+                </div>
+            </section>
+
+            <div id="pageMessage" class="tournament-message" role="status" aria-live="polite" hidden></div>
+
+            <section id="createCard" class="content-card" hidden>
+                <div class="tournament-section-heading">
+                    <h2><span class="section-title-icon" aria-hidden="true">＋</span> Tạo giải đấu mới</h2>
+                </div>
+                <form id="createForm" class="tournament-form">
+                    <label>
+                        Tên giải đấu
+                        <input id="tournamentName" name="name" type="text" minlength="2" maxlength="120" required>
+                    </label>
+                    <label>
+                        Mô tả (không bắt buộc)
+                        <textarea id="tournamentDescription" name="description" maxlength="1000"></textarea>
+                    </label>
+                    <div class="tournament-host-actions">
+                        <button class="btn btn-primary" type="submit">Tạo giải</button>
+                        <button class="btn btn-secondary" type="button" id="cancelCreateBtn">Hủy</button>
+                    </div>
+                </form>
+            </section>
+
+            <div class="tournaments-filter-row" id="filterRow" role="group" aria-label="Lọc theo trạng thái">
+                <button class="tournaments-filter-chip active" type="button" data-status="">Tất cả</button>
+                <button class="tournaments-filter-chip" type="button" data-status="draft">Nháp</button>
+                <button class="tournaments-filter-chip" type="button" data-status="ready">Sẵn sàng</button>
+                <button class="tournaments-filter-chip" type="button" data-status="running">Đang chạy</button>
+                <button class="tournaments-filter-chip" type="button" data-status="completed">Hoàn tất</button>
+                <button class="tournaments-filter-chip" type="button" data-status="cancelled">Đã hủy</button>
+            </div>
+
+            <section class="tournament-list" id="tournamentList" aria-live="polite">
+                <div class="loading-state">
+                    <div class="loading-spinner"></div>
+                    <p>Đang tải danh sách giải đấu...</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/tournaments.js"></script>
+</body>
+</html>

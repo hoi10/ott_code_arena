@@ -15,6 +15,7 @@ Browser pages
        ├── bots ── bot service ── bot repository + isolated bot runner
        ├── matches ── match service ── match manager / rules / repositories
        └── submissions ── submission service ── bot evaluation + repository
+        └── tournaments ── tournament service ── round-robin / scoring / scheduler
                                       └── Prisma / MySQL
 ```
 
@@ -56,6 +57,11 @@ outcome. They are not ranked matches.
 - `MatchParticipant` assigns bots to match sides and records winner/score data.
 - `Submission` stores tested source, optional bot association, status, and JSON
   evaluation result.
+- `Tournament` owns the Round Robin mode: status, format, host, and timestamps.
+- `TournamentEntry` stores each participant's user/bot plus an immutable snapshot
+  of the bot source, language, and protocol version taken at lock time.
+- `TournamentRound` / `TournamentMatch` / `TournamentGame` store the generated
+  schedule, each pairing, and the two side-swapped legs with their results.
 
 ## Security and operational boundaries
 

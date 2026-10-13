@@ -226,6 +226,54 @@ function errorMiddleware(err, req, res, next) {
       status: 409,
       message: "Lời mời đấu tiếp đã hết hạn. Bạn có thể gửi lời mời mới.",
     },
+    TOURNAMENT_ID_INVALID: {
+      status: 400,
+      message: "Mã giải đấu không hợp lệ.",
+    },
+    TOURNAMENT_NOT_FOUND: {
+      status: 404,
+      message: "Không tìm thấy giải đấu.",
+    },
+    TOURNAMENT_HOST_ONLY: {
+      status: 403,
+      message: "Chỉ chủ giải mới có thể thực hiện thao tác này.",
+    },
+    TOURNAMENT_NOT_EDITABLE: {
+      status: 409,
+      message: "Chỉ có thể chỉnh sửa khi giải đang ở trạng thái nháp.",
+    },
+    TOURNAMENT_NOT_LOCKABLE: {
+      status: 409,
+      message: "Giải đấu không ở trạng thái có thể chốt danh sách.",
+    },
+    TOURNAMENT_MIN_PARTICIPANTS: {
+      status: 400,
+      message: "Giải đấu cần ít nhất 3 người tham gia hợp lệ.",
+    },
+    TOURNAMENT_BOT_INVALID: {
+      status: 400,
+      message: "Một hoặc nhiều bot không đủ điều kiện để tham gia giải.",
+    },
+    TOURNAMENT_ENTRY_ALREADY_EXISTS: {
+      status: 409,
+      message: "Người chơi hoặc bot này đã có mặt trong giải đấu.",
+    },
+    TOURNAMENT_ENTRY_NOT_FOUND: {
+      status: 404,
+      message: "Không tìm thấy người tham gia trong giải đấu.",
+    },
+    TOURNAMENT_NOT_STARTABLE: {
+      status: 409,
+      message: "Giải đấu chưa sẵn sàng để bắt đầu.",
+    },
+    TOURNAMENT_NOT_CANCELLABLE: {
+      status: 409,
+      message: "Không thể hủy giải đấu ở trạng thái hiện tại.",
+    },
+    TOURNAMENT_NOT_RETRYABLE: {
+      status: 409,
+      message: "Giải đấu hiện không có trận nào để chạy lại.",
+    },
   };
 
   const knownError = errorMap[err.message];

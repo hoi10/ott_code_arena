@@ -2,6 +2,8 @@ require("dotenv").config();
 
 const app = require("./app");
 const roomScheduler = require("./services/room-scheduler");
+const tournamentScheduler = require("./services/tournament-scheduler");
+const tournamentService = require("./services/tournament.service");
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || "0.0.0.0";
@@ -13,11 +15,15 @@ const server = app.listen(PORT, HOST, () => {
     console.error("Không thể khôi phục các trận đấu trong phòng:", error);
   });
   roomScheduler.startCleanup();
+  tournamentService.resumeRunningTournaments().catch((error) => {
+    console.error("Không thể khôi phục các giải đấu đang chạy:", error);
+  });
 });
 
 async function shutdown(signal) {
   console.log(`${signal} received. Shutting down server...`);
   roomScheduler.stop();
+  tournamentScheduler.stop();
 
   server.close(async () => {
     try {

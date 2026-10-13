@@ -212,6 +212,58 @@ and associated with that owned bot. The result is saved as `accepted` for a
 legal move, `rejected` for an invalid move, or `failed` for a runtime error.
 This is a one-turn bot test, not a tournament or ranked match.
 
+## Giải đấu (Tournament Mode — Round Robin)
+
+Giải đấu theo thể thức vòng tròn: mỗi cặp bot gặp nhau đúng hai lượt, lượt
+thứ hai đổi bên đi trước. Tất cả API dưới đây yêu cầu đăng nhập
+(`Authorization: Bearer <token>`).
+
+- `POST /tournaments` tạo giải từ `{ "name": "...", "description": "..." }`
+  (description không bắt buộc). Người tạo là chủ giải. Giải khởi tạo ở trạng
+  thái `draft`.
+- `GET /tournaments?status=&page=&limit=` liệt kê giải đấu, có thể lọc theo
+  trạng thái (`draft`, `ready`, `running`, `completed`, `cancelled`).
+- `GET /tournaments/:id` xem chi tiết: người tham gia, lịch theo vòng, kết quả
+  từng lượt và bảng xếp hạng. Phản hồi không bao giờ chứa mã nguồn bot.
+- `PATCH /tournaments/:id` cập nhật `name`/`description` — chỉ chủ giải và chỉ
+  khi còn ở trạng thái `draft`.
+
+### Đăng ký người tham gia
+
+Mỗi người chơi tự đăng ký bằng một bot thuộc quyền sở hữu của mình (đúng mô
+hình phân quyền hiện tại: chỉ dùng được bot của chính mình). Vì vậy chủ giải
+không thể chọn bot thuộc tài khoản khác.
+
+- `POST /tournaments/:id/participants` với `{ "botId": 12 }` đăng ký bot của
+  người đang gọi. Mỗi người và mỗi bot chỉ xuất hiện một lần trong giải. Chỉ
+  thêm được khi giải ở trạng thái `draft`.
+- `DELETE /tournaments/:id/participants` với `{ "entryId": 3 }` xóa một người
+  tham gia — chỉ chủ giải và chỉ khi còn ở trạng thái `draft`.
+
+### Vòng đời giải
+
+- `POST /tournaments/:id/lock` chốt danh sách: kiểm tra ít nhất 3 người tham
+  gia hợp lệ, đóng băng snapshot mã nguồn/ngôn ngữ cho từng bot và tạo toàn bộ
+  lịch Round Robin. `draft → ready`. Không thể chốt hai lần.
+- `POST /tournaments/:id/start` bắt đầu chạy giải: `ready → running`. Máy chủ
+  tự chạy từng vòng, mỗi vòng phải hoàn tất trước khi sang vòng tiếp theo.
+- `POST /tournaments/:id/cancel` hủy giải — chỉ chủ giải và chỉ khi còn `draft`
+  hoặc `ready`.
+- `POST /tournaments/:id/retry-failed` đưa các trận bị lỗi hạ tầng (đã hết số
+  lần thử tự động) trở lại hàng chờ để chạy lại — chỉ chủ giải.
+
+Mọi quyền chủ giải đều được kiểm thử ở backend. Client không thể tự quyết định
+kết quả, điểm số hay trạng thái hoàn tất của trận.
+
+### Tính điểm và xếp hạng
+
+- Thắng một lượt: 3 điểm. Hòa: 1 điểm mỗi bot. Thua: 0 điểm.
+- Điểm tổng = tổng điểm các lượt hợp lệ. Bảng xếp hạng sắp theo: tổng điểm
+  giảm dần, sau đó tới thành tích đối đầu trong nhóm bằng điểm, rồi hiệu số
+  (thắng − thua), cuối cùng là seed để luôn xác định.
+- Hòa được engine hỗ trợ (đạt giới hạn 1.000 lượt). Điểm được tính lại từ các
+  lượt đã hoàn tất nên không bao giờ bị cộng hai lần.
+
 ## Common errors
 
 Validation errors return HTTP 400 with field-level details. Missing or expired

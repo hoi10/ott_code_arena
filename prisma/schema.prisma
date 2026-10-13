@@ -23,6 +23,9 @@ model User {
   presenceSessions          UserPresence[]
   sentSocialInvitations     SocialInvitation[] @relation("SocialInvitationSender")
   receivedSocialInvitations SocialInvitation[] @relation("SocialInvitationReceiver")
+
+  hostedTournaments Tournament[]     @relation("TournamentHost")
+  tournamentEntries TournamentEntry[]
 }
 
 model Bot {
@@ -43,6 +46,7 @@ model Bot {
   participants   MatchParticipant[]
   submissions    Submission[]
   roomSelections RoomPlayer[]
+  tournamentEntries TournamentEntry[]
 }
 
 model Match {
@@ -194,4 +198,122 @@ model SocialInvitation {
   @@index([receiverId, status, expiresAt])
   @@index([senderId, status, expiresAt])
   @@index([roomId, kind, status])
+}
+
+model Tournament {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(120)
+  description String?   @db.Text
+  status      String    @default("draft") @db.VarChar(20)
+  format      String    @default("round_robin") @db.VarChar(30)
+  lockedAt    DateTime?
+  startedAt   DateTime?
+  endedAt     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  hostUserId Int
+  hostUser   User @relation("TournamentHost", fields: [hostUserId], references: [id], onDelete: Cascade)
+
+  entries TournamentEntry[]
+  rounds  TournamentRound[]
+  matches TournamentMatch[]
+
+  @@index([status, createdAt])
+  @@index([hostUserId, status])
+}
+
+model TournamentEntry {
+  id                     Int      @id @default(autoincrement())
+  seed                   Int
+  snapshotSourceCode     String   @db.LongText
+  snapshotLanguage       String   @default("javascript") @db.VarChar(30)
+  snapshotProtocolVersion Int     @default(2)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  tournamentId Int
+  userId       Int
+  botId        Int
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bot        Bot        @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  matchAsA TournamentMatch[] @relation("MatchEntryA")
+  matchAsB TournamentMatch[] @relation("MatchEntryB")
+  gamesAsFirst  TournamentGame[] @relation("GameFirstEntry")
+  gamesAsSecond TournamentGame[] @relation("GameSecondEntry")
+  wonGames      TournamentGame[] @relation("GameWinner")
+
+  @@unique([tournamentId, userId])
+  @@unique([tournamentId, botId])
+  @@index([tournamentId, seed])
+}
+
+model TournamentRound {
+  id           Int      @id @default(autoincrement())
+  roundNumber  Int
+  status       String   @default("pending") @db.VarChar(20)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tournamentId Int
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  matches TournamentMatch[]
+
+  @@unique([tournamentId, roundNumber])
+}
+
+model TournamentMatch {
+  id        Int      @id @default(autoincrement())
+  status    String   @default("pending") @db.VarChar(20)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tournamentId Int
+  roundId      Int
+  entryAId     Int
+  entryBId     Int
+
+  tournament Tournament      @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  round       TournamentRound @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  entryA      TournamentEntry @relation("MatchEntryA", fields: [entryAId], references: [id], onDelete: Cascade)
+  entryB      TournamentEntry @relation("MatchEntryB", fields: [entryBId], references: [id], onDelete: Cascade)
+
+  games TournamentGame[]
+
+  @@unique([tournamentId, entryAId, entryBId])
+  @@index([roundId, status])
+}
+
+model TournamentGame {
+  id             Int       @id @default(autoincrement())
+  legNumber      Int
+  status         String    @default("pending") @db.VarChar(20)
+  winnerEntryId  Int?
+  isDraw         Boolean   @default(false)
+  winReason      String?   @db.VarChar(60)
+  turns          Int?
+  attempts       Int       @default(0)
+  errorCode      String?   @db.VarChar(80)
+  errorMessage   String?   @db.VarChar(500)
+  result         Json?
+  startedAt      DateTime?
+  endedAt        DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  matchId       Int
+  firstEntryId  Int
+  secondEntryId Int
+
+  match       TournamentMatch @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  firstEntry  TournamentEntry @relation("GameFirstEntry", fields: [firstEntryId], references: [id], onDelete: Cascade)
+  secondEntry TournamentEntry @relation("GameSecondEntry", fields: [secondEntryId], references: [id], onDelete: Cascade)
+  winnerEntry TournamentEntry? @relation("GameWinner", fields: [winnerEntryId], references: [id], onDelete: SetNull)
+
+  @@unique([matchId, legNumber])
+  @@index([status, createdAt])
 }

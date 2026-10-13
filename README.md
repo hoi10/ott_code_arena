@@ -154,6 +154,21 @@ dạng nước đi và ví dụ JavaScript, C++/Python có thể dùng làm đi�
 tả đầy đủ nằm ở [Bot Arena Protocol v2](./docs/bot-arena-protocol.md); Protocol
 v1 vẫn được hỗ trợ cho bot cũ.
 
+## Giải đấu Round Robin
+
+Người dùng đăng nhập có thể tạo giải đấu theo thể thức vòng tròn: mỗi cặp bot
+gặp nhau đúng hai lượt, lượt thứ hai đổi bên đi trước. Mỗi người tham gia tự
+đăng ký bằng một bot thuộc quyền sở hữu của mình; chủ giải chốt danh sách (tối
+thiểu 3 người) để đóng băng snapshot mã nguồn bot và tạo lịch, rồi bắt đầu giải.
+Máy chủ tự chạy từng vòng; điểm được tính là thắng 3, hòa 1, thua 0 và tổng hợp
+thành bảng xếp hạng. Các lỗi hạ tầng khi chạy trận được thử lại có giới hạn; trận
+lỗi cuối cùng được đánh dấu rõ ràng chứ không bị tính thành thắng hay thua. Giải
+đấu tiếp tục được sau khi server khởi động lại.
+
+Chi tiết trạng thái, thuật toán tạo lịch, cách tính điểm, API và cách chạy test
+nằm ở [Tournament Mode](./docs/tournament-mode.md) và [API reference](./docs/api.md).
+
+
 ## Bot runner và sandbox
 
 Bot được chạy ngoài tiến trình Express bằng adapter tương ứng: Node.js cho

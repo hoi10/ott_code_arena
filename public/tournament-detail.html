@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7f8fc">
+    <title>Chi tiết giải đấu | OTT Code Arena</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/tournaments.css">
+</head>
+
+<body class="dashboard-page tournaments-page">
+    <main class="main-content">
+        <header class="topbar">
+            <div class="topbar-left">
+                <a class="btn btn-secondary tournaments-back-link" href="/tournaments.html">← Giải đấu</a>
+                <div class="breadcrumb">
+                    <span>Giải đấu</span>
+                    <span class="breadcrumb-separator">/</span>
+                    <strong>Chi tiết</strong>
+                </div>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div id="pageMessage" class="tournament-message" role="status" aria-live="polite" hidden></div>
+
+            <div id="detailRoot">
+                <div class="loading-state">
+                    <div class="loading-spinner"></div>
+                    <p>Đang tải thông tin giải đấu...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <dialog id="confirmDialog" class="tournament-dialog" aria-labelledby="confirmTitle">
+        <div class="tournament-dialog-content">
+            <h2 id="confirmTitle">Xác nhận</h2>
+            <p id="confirmMessage"></p>
+            <div class="tournament-dialog-actions">
+                <button class="btn btn-secondary" type="button" id="confirmCancelBtn">Hủy</button>
+                <button class="btn btn-primary" type="button" id="confirmOkBtn">Đồng ý</button>
+            </div>
+        </div>
+    </dialog>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/tournament-detail.js"></script>
+</body>
+</html>
