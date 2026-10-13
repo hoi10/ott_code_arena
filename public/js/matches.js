@@ -1076,6 +1076,12 @@ function renderBoard(state, playerNames, playerSideNames) {
   const playerIndexes = new Map(
     state.players.map((player, index) => [String(player.id), index])
   );
+  const homeIndexes = new Map(
+    state.players.map((player, index) => [
+      `${player.home?.x},${player.home?.y}`,
+      index,
+    ])
+  );
   board.replaceChildren();
   board.style.setProperty("--board-size", String(state.boardSize));
 
@@ -1089,7 +1095,7 @@ function renderBoard(state, playerNames, playerSideNames) {
     board.append(label);
   }
 
-  for (let y = state.boardSize - 1; y >= 0; y -= 1) {
+  for (let y = 0; y < state.boardSize; y += 1) {
     const rank = document.createElement("span");
     rank.className = "board-axis";
     rank.textContent = String(y + 1);
@@ -1098,17 +1104,12 @@ function renderBoard(state, playerNames, playerSideNames) {
       const cell = document.createElement("div");
       cell.className = "board-cell" + ((x + y) % 2 ? " dark" : "");
       cell.dataset.position = `${String.fromCharCode(97 + x)}${y + 1}`;
-      if (x === 0 && y === 0) {
-        cell.classList.add("home-a");
+      const homeIndex = homeIndexes.get(`${x},${y}`);
+      if (homeIndex !== undefined) {
+        cell.classList.add(homeIndex === 0 ? "home-a" : "home-b");
         cell.setAttribute(
           "aria-label",
-          `${cell.dataset.position}, nhà chính của ${playerSideNames.get(String(state.players[0]?.id)) || "người chơi 1"}`
-        );
-      } else if (x === state.boardSize - 1 && y === state.boardSize - 1) {
-        cell.classList.add("home-b");
-        cell.setAttribute(
-          "aria-label",
-          `${cell.dataset.position}, nhà chính của ${playerSideNames.get(String(state.players[1]?.id)) || "người chơi 2"}`
+          `${cell.dataset.position}, nhà chính của ${playerSideNames.get(String(state.players[homeIndex]?.id)) || `người chơi ${homeIndex + 1}`}`
         );
       }
       for (const [playerId, move] of lastMoves) {
@@ -1118,11 +1119,8 @@ function renderBoard(state, playerNames, playerSideNames) {
         const sideName =
           playerSideNames.get(playerId) || `Người chơi ${playerIndex + 1}`;
         const labels = [cell.dataset.position];
-        if (cell.classList.contains("home-a")) {
-          labels.push(`nhà chính của ${playerSideNames.get(String(state.players[0]?.id)) || "người chơi 1"}`);
-        }
-        if (cell.classList.contains("home-b")) {
-          labels.push(`nhà chính của ${playerSideNames.get(String(state.players[1]?.id)) || "người chơi 2"}`);
+        if (homeIndex !== undefined) {
+          labels.push(`nhà chính của ${playerSideNames.get(String(state.players[homeIndex]?.id)) || `người chơi ${homeIndex + 1}`}`);
         }
         labels.push(`nước đi gần nhất của ${sideName}`);
         cell.classList.add("last-move");

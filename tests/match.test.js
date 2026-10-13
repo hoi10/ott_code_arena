@@ -85,11 +85,13 @@ test("rejects an opponent bot that is private", async () => {
 });
 
 test("switches an owned bot only during the opponent's turn", async () => {
+  const stateBeforeSwitch = structuredClone(match.result);
   availableBots.set(33, { id: 33, userId: 7, isActive: true });
   const updated = await matchService.changeBot(5, 7, 1, 33);
 
   assert.equal(updated.participants[0].botId, 33);
   assert.deepEqual(calls.at(-1), { matchId: 5, participantId: 1, botId: 33 });
+  assert.deepEqual(match.result, stateBeforeSwitch);
 
   match.result.currentPlayerId = "1";
   await assert.rejects(

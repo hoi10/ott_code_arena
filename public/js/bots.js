@@ -106,6 +106,11 @@ function createBotDetails(bot) {
   editLink.href = `/create-bot.html?id=${encodeURIComponent(bot.id)}`;
   editLink.textContent = "Chỉnh sửa";
 
+  const testLink = document.createElement("a");
+  testLink.className = "btn btn-secondary";
+  testLink.href = `/bot-playground.html?origin=bots&botId=${encodeURIComponent(bot.id)}`;
+  testLink.textContent = "Test thế cờ";
+
   const deleteButton = document.createElement("button");
   deleteButton.className = "btn btn-secondary";
   deleteButton.type = "button";
@@ -123,7 +128,7 @@ function createBotDetails(bot) {
     }
   });
 
-  actions.append(editLink, deleteButton);
+  actions.append(testLink, editLink, deleteButton);
   card.append(header, description, meta, sourceDetails, actions);
   return card;
 }

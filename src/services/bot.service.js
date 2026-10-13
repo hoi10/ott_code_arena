@@ -1,5 +1,6 @@
 const botRepository = require("../repositories/bot.repository");
 const gameRules = require("../game-engine/game-rules");
+const gameEngine = require("../game-engine/engine");
 const { runBot } = require("../bot-runner/runner");
 
 const botService = {
@@ -31,27 +32,43 @@ const botService = {
       description: data.description ?? null,
       sourceCode: data.sourceCode,
       language: data.language ?? "javascript",
+      protocolVersion: data.protocolVersion ?? 2,
       isPublic: data.isPublic ?? false,
       userId,
     });
   },
 
-  async testBot(sourceCode, language = "javascript") {
-    const state = gameRules.createInitialState({
-      participantIds: ["1", "2"],
+  async testBot(sourceCode, language = "javascript", testState = null, protocolVersion = 2) {
+    const state = testState
+      ? gameRules.createTestState(testState)
+      : gameRules.createInitialState({ participantIds: ["1", "2"] });
+    const playerId = testState ? "1" : state.currentPlayerId;
+    const opponentId = state.players.find(
+      (player) => player.id !== String(playerId)
+    ).id;
+    const turnResult = await gameEngine.runTurn({
+      state,
+      participants: [
+        {
+          id: String(playerId),
+          bot: { id: "test-bot", sourceCode, language, protocolVersion, isActive: true },
+        },
+        {
+          id: String(opponentId),
+          bot: { id: "test-opponent", sourceCode: "", language: "javascript", protocolVersion: 2, isActive: true },
+        },
+      ],
+      runBot,
     });
-    const playerId = state.currentPlayerId;
-    const action = await runBot(
-      sourceCode,
-      gameRules.createBotInput(state, playerId),
-      { language }
-    );
-    const validation = gameRules.validateMove(action, state, playerId);
 
     return {
-      valid: validation.valid,
-      reason: validation.reason ?? null,
-      action,
+      valid: turnResult.record.valid,
+      reason: turnResult.record.reason ?? null,
+      action: turnResult.proposedAction,
+      error: turnResult.record.error,
+      input: gameRules.createBotInput(state, playerId, protocolVersion),
+      stateBefore: state,
+      stateAfter: turnResult.state,
     };
   },
 

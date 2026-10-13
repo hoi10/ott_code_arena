@@ -17,53 +17,105 @@
     const params = new URLSearchParams(window.location.search);
     const botId = params.get("id");
     const isEditMode = Boolean(botId);
+    let protocolVersion = 2;
     const draftKey = "ott-code-arena-bot-draft";
     const starterCode = {
-        javascript: `const moves = input.legalMoves || [];
-if (!moves.length) return null;
-return { pieceId: moves[0].pieceId, to: moves[0].to };`,
+        javascript: `const own = input.pieces?.own || [];
+const opponent = input.pieces?.opponent || [];
+const captures = input.rules?.captures || {};
+const occupied = new Map([...own, ...opponent].map(piece => [piece.x + "," + piece.y, piece]));
+
+for (const piece of own) {
+  for (let dy = -1; dy <= 1; dy += 1) {
+    for (let dx = -1; dx <= 1; dx += 1) {
+      if (dx === 0 && dy === 0) continue;
+      const x = piece.x + dx;
+      const y = piece.y + dy;
+      if (x < 0 || y < 0 || x >= input.boardSize || y >= input.boardSize) continue;
+      const occupant = occupied.get(x + "," + y);
+      if (occupant?.ownerId === piece.ownerId) continue;
+      if (occupant && captures[piece.type] !== occupant.type) continue;
+      return { pieceId: piece.id, to: { x, y } };
+    }
+  }
+}
+return null;`,
         python: `import json
 import sys
 
 data = json.load(sys.stdin)
-moves = data.get("legalMoves", [])
-if not moves:
-    print("null")
-else:
-    move = moves[0]
-    print(json.dumps({"pieceId": move["pieceId"], "to": move["to"]}))`,
+own = data.get("pieces", {}).get("own", [])
+opponent = data.get("pieces", {}).get("opponent", [])
+captures = data.get("rules", {}).get("captures", {})
+occupied = {(piece["x"], piece["y"]): piece for piece in own + opponent}
+
+for piece in own:
+    for dy in (-1, 0, 1):
+        for dx in (-1, 0, 1):
+            if dx == 0 and dy == 0:
+                continue
+            x = piece["x"] + dx
+            y = piece["y"] + dy
+            if x < 0 or y < 0 or x >= data["boardSize"] or y >= data["boardSize"]:
+                continue
+            occupant = occupied.get((x, y))
+            if occupant and occupant.get("ownerId") == piece.get("ownerId"):
+                continue
+            if occupant and captures.get(piece["type"]) != occupant.get("type"):
+                continue
+            print(json.dumps({"pieceId": piece["id"], "to": {"x": x, "y": y}}))
+            raise SystemExit
+
+print("null")`,
         cpp: `#include <iostream>
 #include <iterator>
+#include <regex>
 #include <string>
+#include <vector>
+
+struct Piece { std::string id, ownerId, type; int x, y; };
+
+std::vector<Piece> readPieces(const std::string& json, const std::string& key) {
+    const auto keyAt = json.find("\\\"" + key + "\\\"");
+    const auto start = json.find('[', keyAt);
+    const auto end = json.find(']', start);
+    if (keyAt == std::string::npos || start == std::string::npos || end == std::string::npos) return {};
+    const std::string list = json.substr(start, end - start + 1);
+    const std::regex item(R"json(\\{\\"id\\":\\"([^\\"]+)\\",\\"ownerId\\":\\"([^\\"]+)\\",\\"type\\":\\"([^\\"]+)\\",\\"x\\":(-?[0-9]+),\\"y\\":(-?[0-9]+)\\})json");
+    std::vector<Piece> pieces;
+    for (std::sregex_iterator it(list.begin(), list.end(), item), last; it != last; ++it) {
+        pieces.push_back({(*it)[1], (*it)[2], (*it)[3], std::stoi((*it)[4]), std::stoi((*it)[5])});
+    }
+    return pieces;
+}
+
+bool canCapture(const std::string& attacker, const std::string& defender) {
+    return (attacker == "bua" && defender == "keo") ||
+           (attacker == "keo" && defender == "bao") ||
+           (attacker == "bao" && defender == "bua");
+}
 
 int main() {
-    std::string input((std::istreambuf_iterator<char>(std::cin)), {});
-    const auto legalMoves = input.find("\\\"legalMoves\\\"");
-    const auto listStart = input.find('[', legalMoves);
-    const auto firstToken = input.find_first_not_of(" \\t\\r\\n", listStart + 1);
-    if (listStart == std::string::npos || firstToken == std::string::npos ||
-        input[firstToken] == ']') {
-        std::cout << "null";
-        return 0;
+    const std::string input((std::istreambuf_iterator<char>(std::cin)), {});
+    const auto own = readPieces(input, "own");
+    const auto opponent = readPieces(input, "opponent");
+    std::vector<Piece> board = own;
+    board.insert(board.end(), opponent.begin(), opponent.end());
+
+    for (const auto& piece : own) {
+        for (int dy = -1; dy <= 1; ++dy) for (int dx = -1; dx <= 1; ++dx) {
+            if (dx == 0 && dy == 0) continue;
+            const int x = piece.x + dx, y = piece.y + dy;
+            if (x < 0 || y < 0 || x >= 9 || y >= 9) continue;
+            const Piece* occupant = nullptr;
+            for (const auto& other : board) if (other.x == x && other.y == y) { occupant = &other; break; }
+            if (occupant && occupant->ownerId == piece.ownerId) continue;
+            if (occupant && !canCapture(piece.type, occupant->type)) continue;
+            std::cout << "{\\\"pieceId\\\":\\\"" << piece.id << "\\\",\\\"to\\\":{\\\"x\\\":" << x << ",\\\"y\\\":" << y << "}}";
+            return 0;
+        }
     }
-    const auto firstObject = firstToken;
-    const auto pieceKey = input.find("\\\"pieceId\\\"", firstObject);
-    const auto pieceStart = input.find('\\\"', pieceKey + 10) + 1;
-    const auto pieceEnd = input.find('\\\"', pieceStart);
-    const auto xKey = input.find("\\\"x\\\"", pieceEnd);
-    const auto xStart = input.find(':', xKey) + 1;
-    const auto xEnd = input.find(',', xStart);
-    const auto yKey = input.find("\\\"y\\\"", xEnd);
-    const auto yStart = input.find(':', yKey) + 1;
-    const auto yEnd = input.find_first_of("},", yStart);
-    if (pieceKey == std::string::npos || pieceEnd == std::string::npos ||
-        xKey == std::string::npos || yKey == std::string::npos) {
-        std::cout << "null";
-        return 0;
-    }
-    std::cout << "{\\\"pieceId\\\":\\\"" << input.substr(pieceStart, pieceEnd - pieceStart)
-              << "\\\",\\\"to\\\":{\\\"x\\\":" << input.substr(xStart, xEnd - xStart)
-              << ",\\\"y\\\":" << input.substr(yStart, yEnd - yStart) << "}}";
+    std::cout << "null";
 }`
     };
 
@@ -171,7 +223,22 @@ int main() {
             descriptionInput.value = bot.description || "";
             codeInput.value = bot.sourceCode || "";
             languageInput.value = bot.language || "javascript";
+            protocolVersion = bot.protocolVersion || 1;
             setVisibility(Boolean(bot.isPublic));
+            try {
+                const context = JSON.parse(
+                    sessionStorage.getItem("ott-code-arena-playground-context") || "{}"
+                );
+                if (context.origin === "create" && context.botId === botId && context.sourceCode) {
+                    nameInput.value = context.name || nameInput.value;
+                    descriptionInput.value = context.description || descriptionInput.value;
+                    codeInput.value = context.sourceCode;
+                    languageInput.value = context.language || languageInput.value;
+                    setVisibility(context.visibility === "public");
+                }
+            } catch (error) {
+                console.warn("Không thể khôi phục mã đang test.", error);
+            }
             updateEditorLanguage();
             updateCodeStats();
         } catch (error) {
@@ -186,42 +253,29 @@ int main() {
             return;
         }
 
-        setBusy(testButton, true, "Đang kiểm tra...");
         try {
-            const response = await window.api.post("/submissions", {
+            const draft = {
+                name: nameInput.value,
                 language: languageInput.value,
+                description: descriptionInput.value,
+                code: codeInput.value,
+                visibility: getVisibility() ? "public" : "private"
+            };
+            localStorage.setItem(draftKey, JSON.stringify(draft));
+            sessionStorage.setItem("ott-code-arena-playground-context", JSON.stringify({
+                origin: "create",
+                botId: botId || null,
+                name: nameInput.value,
+                description: descriptionInput.value,
+                visibility: getVisibility() ? "public" : "private",
+                language: languageInput.value,
+                protocolVersion,
                 sourceCode: codeInput.value
-            });
-            const submission = response?.data?.submission;
-            const result = submission?.result;
-            if (!submission || !result) {
-                throw new Error("Máy chủ không trả về kết quả kiểm tra.");
-            }
-
-            if (submission.status === "accepted") {
-                showMessage(
-                    "Mã chạy thành công và đã lưu vào lịch sử. Nước đi mẫu: quân " +
-                    result.action.pieceId + " đến " + result.action.to.name + ".",
-                    "success"
-                );
-            } else if (submission.status === "rejected") {
-                showMessage(
-                    "Mã chạy được nhưng nước đi không hợp lệ (" +
-                    result.reason + "). Hãy trả về { pieceId, to: { x, y } }.",
-                    "error"
-                );
-            } else {
-                showMessage(
-                    "Không thể chạy bot: " +
-                    (result.error || "Đã xảy ra lỗi khi kiểm tra.") +
-                    ". Lượt kiểm tra đã được lưu vào lịch sử.",
-                    "error"
-                );
-            }
+            }));
+            window.location.href = "/bot-playground.html?origin=create" +
+                (botId ? "&botId=" + encodeURIComponent(botId) : "");
         } catch (error) {
-            showMessage("Không thể kiểm tra mã bot: " + error.message, "error");
-        } finally {
-            setBusy(testButton, false);
+            showMessage("Không thể mở màn hình kiểm tra: " + error.message, "error");
         }
     }
 
@@ -237,6 +291,7 @@ int main() {
         const payload = {
             name: nameInput.value.trim(),
             language: languageInput.value,
+            protocolVersion,
             description: descriptionInput.value.trim(),
             sourceCode: codeInput.value,
             isPublic: getVisibility()
@@ -251,6 +306,7 @@ int main() {
             if (!savedBot?.id) throw new Error("Máy chủ không trả về bot đã lưu.");
 
             localStorage.removeItem(draftKey);
+            sessionStorage.removeItem("ott-code-arena-playground-context");
             showMessage(
                 isEditMode ? "Đã cập nhật bot thành công." : "Đã tạo bot thành công.",
                 "success"

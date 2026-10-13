@@ -1,4 +1,5 @@
-const PROTOCOL_VERSION = 1;
+const LEGACY_PROTOCOL_VERSION = 1;
+const PROTOCOL_VERSION = 2;
 
 function validateBotInput(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) {
@@ -6,7 +7,7 @@ function validateBotInput(input) {
   }
 
   if (
-    input.protocolVersion !== PROTOCOL_VERSION ||
+    ![LEGACY_PROTOCOL_VERSION, PROTOCOL_VERSION].includes(input.protocolVersion) ||
     typeof input.playerId !== "string" ||
     !Number.isInteger(input.turn) ||
     !Number.isInteger(input.boardSize) ||
@@ -17,7 +18,7 @@ function validateBotInput(input) {
     !Array.isArray(input.pieces.opponent) ||
     !input.rules ||
     typeof input.rules !== "object" ||
-    !Array.isArray(input.legalMoves)
+    (input.protocolVersion === LEGACY_PROTOCOL_VERSION && !Array.isArray(input.legalMoves))
   ) {
     throw new Error("BOT_INPUT_INVALID");
   }
@@ -50,17 +51,19 @@ function parseBotOutput(stdout, input) {
     throw new Error("BOT_OUTPUT_SCHEMA_INVALID");
   }
 
-  const isLegalMove = input.legalMoves.some(
-    (move) =>
-      move &&
-      move.pieceId === output.pieceId &&
-      move.to &&
-      move.to.x === output.to.x &&
-      move.to.y === output.to.y
-  );
+  if (input.protocolVersion === LEGACY_PROTOCOL_VERSION) {
+    const isLegalMove = input.legalMoves.some(
+      (move) =>
+        move &&
+        move.pieceId === output.pieceId &&
+        move.to &&
+        move.to.x === output.to.x &&
+        move.to.y === output.to.y
+    );
 
-  if (!isLegalMove) {
-    throw new Error("BOT_OUTPUT_ILLEGAL_MOVE");
+    if (!isLegalMove) {
+      throw new Error("BOT_OUTPUT_ILLEGAL_MOVE");
+    }
   }
 
   return {

@@ -123,9 +123,14 @@
             </div>
 
             <div class="starter-code-note">
-                Bot nhận <code>input</code> gồm bàn cờ và <code>legalMoves</code>,
-                rồi trả về <code>{ pieceId, to: { x, y } }</code>.
-                C++ và Python được chạy bằng runtime/compiler cục bộ trong sandbox. Hãy kiểm tra mã trước khi lưu.
+                Bot nhận <code>input</code> gồm toàn bộ trạng thái bàn cờ.
+                Bot phải tự chọn quân của mình và tự tính nước đi.
+                Giá trị trả về bắt buộc là <code>{ pieceId, to: { x, y } }</code>,
+                trong đó <code>pieceId</code> là quân được chọn và <code>to</code> phải là
+                một trong 8 ô liền kề xung quanh quân đó (giống quân Tướng trong cờ tướng),
+                hoặc trả về <code>null</code> nếu không có nước đi.
+                Game engine luôn kiểm tra lại luật ăn quân, ô bị chặn, điều kiện thắng và mọi luật khác.
+                Hãy kiểm tra mã trước khi lưu.
             </div>
 
             <div class="editor-toolbar">

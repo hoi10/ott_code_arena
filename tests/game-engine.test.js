@@ -13,13 +13,13 @@ function makeState() {
     players: [
       {
         id: "1",
-        home: { x: 0, y: 0, name: "a1" },
-        target: { x: 8, y: 8, name: "i9" },
+        home: { x: 0, y: 8, name: "a9" },
+        target: { x: 8, y: 0, name: "i1" },
       },
       {
         id: "2",
-        home: { x: 8, y: 8, name: "i9" },
-        target: { x: 0, y: 0, name: "a1" },
+        home: { x: 8, y: 0, name: "i1" },
+        target: { x: 0, y: 8, name: "a9" },
       },
     ],
     pieces: [
@@ -34,28 +34,53 @@ function makeState() {
   };
 }
 
-test("runs the currently assigned bot with the legal-move input", async () => {
+test("runs the currently assigned bot with the protocol v2 board input", async () => {
   let observedSource;
   let observedInput;
   const result = await runTurn({
     state: makeState(),
     participants: [
-      { id: 1, bot: { id: 101, isActive: true, sourceCode: "first bot code" } },
-      { id: 2, bot: { id: 202, isActive: true, sourceCode: "second bot code" } },
+      { id: 1, bot: { id: 101, language: "python", isActive: true, sourceCode: "first bot code" } },
+      { id: 2, bot: { id: 202, language: "cpp", isActive: true, sourceCode: "second bot code" } },
     ],
-    runBot: async (sourceCode, input) => {
+    runBot: async (sourceCode, input, limits) => {
       observedSource = sourceCode;
       observedInput = input;
+      assert.equal(limits.language, "python");
       return { pieceId: "1-1", to: { x: 2, y: 2 } };
     },
   });
 
   assert.equal(observedSource, "first bot code");
   assert.equal(observedInput.playerId, "1");
-  assert.ok(observedInput.legalMoves.length > 0);
+  assert.equal(observedInput.protocolVersion, 2);
+  assert.equal(observedInput.legalMoves, undefined);
+  assert.equal(observedInput.coordinateSystem, "a1-top-left");
+  assert.deepEqual(
+    observedInput.pieces.own.map((piece) => piece.id),
+    ["1-1", "1-2", "1-3"]
+  );
   assert.equal(result.record.valid, true);
   assert.equal(result.state.currentPlayerId, "2");
   assert.equal(result.botId, 101);
+});
+
+test("rejects a bot proposal without mutating the board", async () => {
+  const state = makeState();
+  const result = await runTurn({
+    state,
+    participants: [
+      { id: 1, bot: { id: 101, protocolVersion: 2, isActive: true, sourceCode: "bad" } },
+      { id: 2, bot: { id: 202, protocolVersion: 2, isActive: true, sourceCode: "other" } },
+    ],
+    runBot: async () => ({ pieceId: "1-1", to: { x: 7, y: 7 } }),
+  });
+
+  assert.equal(result.record.valid, false);
+  assert.equal(result.record.reason, "MOVE_OUT_OF_RANGE");
+  assert.deepEqual(result.state.pieces, state.pieces);
+  assert.equal(result.state.currentPlayerId, "2");
+  assert.deepEqual(result.proposedAction, { pieceId: "1-1", to: { x: 7, y: 7 } });
 });
 
 test("a bot execution failure loses the turn without changing the board", async () => {

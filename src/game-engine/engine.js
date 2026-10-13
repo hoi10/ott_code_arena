@@ -4,6 +4,7 @@ async function runTurn({ state, participants, runBot }) {
   if (!state || state.finished) {
     throw new Error("MATCH_ALREADY_FINISHED");
   }
+  gameRules.assertValidGameState(state);
   if (!Array.isArray(participants) || participants.length !== 2) {
     throw new Error("MATCH_REQUIRES_TWO_PARTICIPANTS");
   }
@@ -23,8 +24,15 @@ async function runTurn({ state, participants, runBot }) {
   try {
     action = await runBot(
       currentParticipant.bot.sourceCode,
-      gameRules.createBotInput(state, currentParticipant.id),
-      { language: currentParticipant.bot.language ?? "javascript" }
+      gameRules.createBotInput(
+        state,
+        currentParticipant.id,
+        currentParticipant.bot.protocolVersion ?? 2
+      ),
+      {
+        language: currentParticipant.bot.language ?? "javascript",
+        protocolVersion: currentParticipant.bot.protocolVersion ?? 2,
+      }
     );
   } catch (runError) {
     error = runError;
@@ -40,6 +48,7 @@ async function runTurn({ state, participants, runBot }) {
   return {
     ...result,
     botId: currentParticipant.bot.id,
+    proposedAction: action ?? null,
   };
 }
 

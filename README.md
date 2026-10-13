@@ -42,8 +42,8 @@ của nhà cung cấp dịch vụ.
 
 ## Luật chơi
 
-- Bàn cờ có kích thước 9×9. Ô A1 nằm ở góc dưới bên trái, ô I9 nằm ở góc trên
-  bên phải.
+- Bàn cờ có kích thước 9×9. Ô A1 nằm ở góc trên bên trái. Nhà chính của bên A
+  là A9 ở góc dưới bên trái; nhà chính của bên B là I1 ở góc trên bên phải.
 - Mỗi bên có chín quân được đặt ngẫu nhiên trong vùng 4×4 ở góc quanh nhà của
   mình. Ô nhà luôn để trống. Mỗi bên bắt đầu với ít nhất một quân Búa, một quân
   Kéo và một quân Bao.
@@ -64,42 +64,33 @@ của nhà cung cấp dịch vụ.
 JavaScript là phần thân của một hàm chạy đồng bộ theo dạng `function(input) { ... }`.
 C++ và Python là chương trình hoàn chỉnh: đọc một JSON object từ `stdin` và in
 đúng một JSON action ra `stdout`; không in log vào `stdout`. Đối tượng `input`
-tuân theo Bot Arena Protocol v1 và gồm:
+tuân theo Bot Arena Protocol v2 và gồm:
 
 - `protocolVersion`, `playerId`, `turn` và `boardSize`.
 - Tọa độ `home` và `target` của bot.
 - `pieces.own` và `pieces.opponent`; mỗi quân có các thuộc tính `id`, `type`,
   `x` và `y`.
-- `legalMoves`, danh sách chính xác các nước đi hợp lệ ở lượt hiện tại. Mỗi
-  nước đi có `pieceId`, ô đích `to: { x, y, name }` và thông tin ăn quân nếu
-  có.
-- `rules`, gồm các loại quân, vòng ăn quân, quy tắc di chuyển và cách xử lý
-  nước đi không hợp lệ.
+- `rules`, gồm các loại quân, vòng ăn quân, tám độ lệch di chuyển hợp lệ,
+  điều kiện thắng và cách xử lý nước đi không hợp lệ.
 
-Hãy trả về một nước đi trong `legalMoves`:
+Bot phải tự đọc `pieces.own`, `pieces.opponent` và `rules` để chọn quân rồi
+tính một ô đích. Ví dụ tối giản:
 ```js
-const moves = input.legalMoves || [];
-const bestMove = [...moves].sort((a, b) => {
-  const captureDifference =
-    Number(Boolean(b.capturePieceId)) - Number(Boolean(a.capturePieceId));
-  if (captureDifference) return captureDifference;
-
-  const target = input.target;
-  const distanceA =
-    Math.abs(a.to.x - target.x) + Math.abs(a.to.y - target.y);
-  const distanceB =
-    Math.abs(b.to.x - target.x) + Math.abs(b.to.y - target.y);
-  return distanceA - distanceB;
-})[0];
-
-if (!bestMove) return null;
-return { pieceId: bestMove.pieceId, to: bestMove.to };
+const piece = input.pieces.own[0];
+if (!piece) return null;
+return { pieceId: piece.id, to: { x: piece.x + 1, y: piece.y } };
 ```
 
 Trả về `null` sẽ tiêu tốn lượt của bot nhưng không di chuyển quân. Kết quả sai
-cấu trúc hoặc không nằm trong `legalMoves` bị từ chối trước khi vào game engine.
-Trước khi lưu, hãy dùng nút **Kiểm tra nước đi** trong
-trình soạn thảo bot để chạy thử mã trên một bàn cờ mẫu.
+cấu trúc hoặc vi phạm luật sẽ bị game engine từ chối.
+Mỗi lượt chỉ được di chuyển đúng một ô theo một trong tám hướng liền kề, giống
+quân Tướng trong cờ tướng. Luật ăn quân, quân bị chặn, điều kiện thắng và các
+luật khác luôn do game engine kiểm tra, không do bot tự quyết định. Bot cũ dùng
+Protocol v1 vẫn được hỗ trợ; v1 có thêm `legalMoves` để tương thích ngược.
+Trước khi lưu, hãy dùng nút **Kiểm tra nước đi** trong trình soạn thảo bot để mở
+playground. Tại đó, đặt đúng một quân của mình, thêm các quân đối thủ tùy ý,
+xóa quân nếu cần rồi chạy đúng một lượt. Bố cục chỉ là dữ liệu đầu vào; server
+tự tạo ID quân, chạy bot trong sandbox và xác minh nước đi theo luật chính thức.
 
 ## API về bot và trận đấu
 
@@ -124,9 +115,12 @@ Các API yêu cầu đăng nhập nằm dưới đường dẫn `/api`:
 - `PATCH /users/password` đổi mật khẩu sau khi xác minh mật khẩu hiện tại.
 - `GET /submissions` trả về lịch sử kiểm thử bot có phân trang của người dùng;
   `POST /submissions` chạy một lần bot đã lưu hoặc mã JavaScript/C++/Python được gửi lên
-  trên bàn cờ mẫu mới. Kết quả gồm `accepted` (nước đi hợp lệ), `rejected`
-  (nước đi không hợp lệ) hoặc `failed` (lỗi khi chạy). Đây là kiểm tra mã nguồn,
-  không phải trận đấu xếp hạng.
+  trên bàn cờ mẫu mới. Có thể gửi thêm `testState.pieces` với các quân dạng
+  `{ "side": "own" | "opponent", "type": "bua" | "keo" | "bao", "x": 1, "y": 1 }`
+  để kiểm tra một thế cờ cụ thể; server luôn kiểm tra lại số lượng, vị trí và
+  luật chơi. Kết quả gồm `accepted` (nước đi hợp lệ), `rejected` (nước đi không
+  hợp lệ) hoặc `failed` (lỗi khi chạy). Đây là kiểm tra mã nguồn, không phải
+  trận đấu xếp hạng.
 
 ## Phòng đấu
 
@@ -157,7 +151,8 @@ thời gian bot suy nghĩ được cộng thêm nếu bot chạy lâu hơn.
 
 Trang [bot-guide.html](./public/bot-guide.html) hướng dẫn dữ liệu đầu vào, định
 dạng nước đi và ví dụ JavaScript, C++/Python có thể dùng làm điểm bắt đầu. Đặc
-tả đầy đủ nằm ở [Bot Arena Protocol v1](./docs/bot-arena-protocol.md).
+tả đầy đủ nằm ở [Bot Arena Protocol v2](./docs/bot-arena-protocol.md); Protocol
+v1 vẫn được hỗ trợ cho bot cũ.
 
 ## Bot runner và sandbox
 

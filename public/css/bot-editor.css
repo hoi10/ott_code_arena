@@ -346,11 +346,19 @@
 
 .create-bot-message {
     display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+
+    width: min(430px, calc(100vw - 40px));
     padding: 12px 14px;
-    margin-bottom: 18px;
+    margin: 0;
     border-radius: var(--radius-sm);
     font-size: 13px;
     line-height: 1.6;
+    box-shadow: 0 12px 30px rgba(24, 35, 56, 0.16);
+    animation: create-bot-toast-enter 0.25s ease;
 }
 
 .create-bot-message.visible {
@@ -367,6 +375,26 @@
     color: #18865f;
     background: #edfbf5;
     border: 1px solid #c5efdd;
+}
+
+@keyframes create-bot-toast-enter {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 600px) {
+    .create-bot-message {
+        top: 12px;
+        right: 12px;
+        width: calc(100vw - 24px);
+    }
 }
 
 /* Actions */

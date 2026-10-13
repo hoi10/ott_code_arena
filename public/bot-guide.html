@@ -29,7 +29,6 @@
             <h2>Bot nhận dữ liệu gì?</h2>
             <p>Mỗi lượt, chương trình nhận một đối tượng tên <code>input</code>. Các trường hữu ích gồm:</p>
             <dl class="bot-guide-fields">
-                <div><dt><code>input.legalMoves</code></dt><dd>Mảng các nước đi hợp lệ ở lượt này. Nếu không có nước đi, mảng sẽ rỗng.</dd></div>
                 <div><dt><code>input.pieces.own</code></dt><dd>Các quân của bạn; mỗi quân có <code>id</code>, <code>type</code>, <code>x</code> và <code>y</code>.</dd></div>
                 <div><dt><code>input.pieces.opponent</code></dt><dd>Các quân của đối thủ trên bàn cờ.</dd></div>
                 <div><dt><code>input.target</code></dt><dd>Tọa độ nhà chính đối phương mà bạn cần đưa quân tới.</dd></div>
@@ -41,49 +40,61 @@
 
         <section class="bot-guide-card">
             <h2>C++ và Python</h2>
-            <p>Với C++ và Python, mã nguồn là một chương trình hoàn chỉnh. Hệ thống gửi dữ liệu vào <code>stdin</code> dưới dạng JSON. Chương trình phải in đúng một action JSON ra <code>stdout</code>; hãy đưa log vào <code>stderr</code>.</p>
+            <p>Với C++ và Python, mã nguồn là một chương trình hoàn chỉnh. Hệ thống gửi toàn bộ bàn cờ vào <code>stdin</code> dưới dạng JSON. Chương trình phải tự chọn quân, tự tính ô đích rồi in đúng một action JSON ra <code>stdout</code>; hãy đưa log vào <code>stderr</code>.</p>
             <pre><code>import json, sys
 data = json.load(sys.stdin)
-move = (data.get("legalMoves") or [None])[0]
-print("null" if move is None else json.dumps({"pieceId": move["pieceId"], "to": move["to"]}))</code></pre>
-            <p>C++ và Python chạy bằng compiler/interpreter được cấu hình trên máy chủ, trong tiến trình sandbox tách biệt và không có mạng. Mẫu C++ dùng parser tối giản để lấy nước đi đầu tiên; khi viết chiến thuật phức tạp, hãy thay bằng parser JSON đầy đủ phù hợp với môi trường compiler của bạn.</p>
+own = data.get("pieces", {}).get("own", [])
+opponent = data.get("pieces", {}).get("opponent", [])
+captures = data.get("rules", {}).get("captures", {})
+occupied = {(p["x"], p["y"]): p for p in own + opponent}
+
+for piece in own:
+    for dy in (-1, 0, 1):
+        for dx in (-1, 0, 1):
+            if dx == 0 and dy == 0:
+                continue
+            x, y = piece["x"] + dx, piece["y"] + dy
+            if not (0 &lt;= x &lt; data["boardSize"] and 0 &lt;= y &lt; data["boardSize"]):
+                continue
+            occupant = occupied.get((x, y))
+            if occupant and (occupant["ownerId"] == piece["ownerId"] or captures[piece["type"]] != occupant["type"]):
+                continue
+            print(json.dumps({"pieceId": piece["id"], "to": {"x": x, "y": y}}))
+            raise SystemExit
+print("null")</code></pre>
+            <p>Bạn có thể dùng thư viện JSON có sẵn trong môi trường của ngôn ngữ nếu được hỗ trợ, nhưng không được cài package động trong lúc chạy. Backend sẽ kiểm tra lại toàn bộ luật.</p>
         </section>
 
         <section class="bot-guide-card">
             <h2>Bot cần trả về gì?</h2>
-            <p>Hãy trả về một đối tượng gồm mã quân và tọa độ đích. Có thể chọn trực tiếp một phần tử trong <code>legalMoves</code>:</p>
+            <p>Hãy trả về một đối tượng gồm mã quân và tọa độ đích. Tọa độ đích bắt buộc là một trong 8 ô liền kề xung quanh quân được chọn, giống quân Tướng trong cờ tướng; bot không được tự đi nhiều ô trong một lượt. Bot phải tự tính cặp dữ liệu này, không nhận sẵn danh sách nước đi:</p>
             <pre><code>{
   pieceId: move.pieceId,
   to: { x: move.to.x, y: move.to.y }
 }</code></pre>
-            <p>Nếu không có nước đi, trả về <code>null</code>. Chỉ sử dụng nước đi trong <code>legalMoves</code> để tránh chọn sai quân, đi ra ngoài bàn hoặc ăn nhầm quân không khắc chế được.</p>
+            <p>Nếu không có nước đi, trả về <code>null</code>. Backend và game engine sẽ kiểm tra quân thuộc về bot, tọa độ nằm trong bàn, khoảng cách tối đa một ô, quân cùng phe chặn đường, luật Búa–Kéo–Bao và điều kiện thắng; kết quả không hợp lệ sẽ bị từ chối.</p>
         </section>
 
         <section class="bot-guide-card">
             <h2>Ví dụ bot đầu tiên</h2>
-            <p>Bot dưới đây ưu tiên ăn quân, nếu chưa ăn được thì chọn nước đi giúp tiến gần hơn tới nhà chính đối phương:</p>
-            <pre><code>const moves = input.legalMoves || [];
+            <p>Bot dưới đây tự duyệt từng quân và tám ô xung quanh, bỏ qua quân cùng phe và chỉ ăn quân đúng luật:</p>
+            <pre><code>const own = input.pieces.own || [];
+const opponent = input.pieces.opponent || [];
+const captures = input.rules.captures || {};
+const occupied = new Map([...own, ...opponent].map(p =&gt; [p.x + "," + p.y, p]));
 
-const bestMove = [...moves].sort((a, b) =&gt; {
-  const captureA = a.capturePieceId ? 1 : 0;
-  const captureB = b.capturePieceId ? 1 : 0;
-  if (captureA !== captureB) return captureB - captureA;
-
-  const distanceA =
-    Math.abs(a.to.x - input.target.x) +
-    Math.abs(a.to.y - input.target.y);
-  const distanceB =
-    Math.abs(b.to.x - input.target.x) +
-    Math.abs(b.to.y - input.target.y);
-  return distanceA - distanceB;
-})[0];
-
-if (!bestMove) return null;
-
-return {
-  pieceId: bestMove.pieceId,
-  to: { x: bestMove.to.x, y: bestMove.to.y }
-};</code></pre>
+for (const piece of own) {
+  for (let dy = -1; dy &lt;= 1; dy++) for (let dx = -1; dx &lt;= 1; dx++) {
+    if (dx === 0 &amp;&amp; dy === 0) continue;
+    const x = piece.x + dx, y = piece.y + dy;
+    if (x &lt; 0 || y &lt; 0 || x &gt;= input.boardSize || y &gt;= input.boardSize) continue;
+    const occupant = occupied.get(x + "," + y);
+    if (occupant?.ownerId === piece.ownerId) continue;
+    if (occupant &amp;&amp; captures[piece.type] !== occupant.type) continue;
+    return { pieceId: piece.id, to: { x, y } };
+  }
+}
+return null;</code></pre>
         </section>
 
         <section class="bot-guide-card">
@@ -91,10 +102,10 @@ return {
             <ul>
                 <li>Bàn cờ có 9 hàng và 9 cột; tọa độ <code>x</code>, <code>y</code> bắt đầu từ 0.</li>
                 <li>Mỗi quân đi tối đa một ô theo một trong tám hướng.</li>
-                <li>Búa ăn Kéo, Kéo ăn Bao, Bao ăn Búa. Hai quân cùng loại không ăn được nhau.</li>
+                <li>Búa ăn Kéo, Kéo ăn Bao, Bao ăn Búa. Hai quân cùng loại hoặc quân đối thủ khắc chế quân đang đi sẽ chặn nước đi.</li>
                 <li>Chạm nhà chính đối phương hoặc ăn hết quân đối phương sẽ thắng.</li>
                 <li>Mỗi lượt, mã bot được chạy độc lập. Đừng dựa vào biến toàn cục để ghi nhớ dữ liệu giữa các lượt.</li>
-                <li>Bot chạy trong môi trường giới hạn; không truy cập tệp hay kết nối mạng. C++/Python phải in đúng một JSON action ra <code>stdout</code>.</li>
+                <li>Bot chạy trong môi trường giới hạn; không truy cập tệp hay kết nối mạng. C++/Python phải in đúng một JSON action ra <code>stdout</code>. Bot chỉ đề xuất; backend mới là bên kiểm tra và thực sự di chuyển quân.</li>
                 <li>Hãy bấm <strong>Kiểm tra nước đi</strong> ở trang tạo bot trước khi lưu bot.</li>
             </ul>
         </section>

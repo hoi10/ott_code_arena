@@ -1,9 +1,15 @@
 const { randomInt: secureRandomInt } = require("crypto");
 
 const BOARD_SIZE = 9;
+const COORDINATE_SYSTEM = "a1-top-left";
 const PIECES_PER_PLAYER = 9;
 const MAX_TURNS = 1000;
 const PIECE_TYPES = ["bua", "keo", "bao"];
+const MOVE_DELTAS = Object.freeze([
+  { x: -1, y: -1 }, { x: 0, y: -1 }, { x: 1, y: -1 },
+  { x: -1, y: 0 },                     { x: 1, y: 0 },
+  { x: -1, y: 1 },  { x: 0, y: 1 },  { x: 1, y: 1 },
+]);
 const CAPTURES = {
   bua: "keo",
   keo: "bao",
@@ -26,11 +32,12 @@ function shuffle(values, randomInt = secureRandomInt) {
 }
 
 function createPlayerPieces(playerId, corner, randomInt = secureRandomInt) {
-  const start = corner === "a1" ? 0 : BOARD_SIZE - 4;
+  const startX = corner === "i1" ? BOARD_SIZE - 4 : 0;
+  const startY = corner === "a9" ? BOARD_SIZE - 4 : 0;
   const cells = [];
 
-  for (let y = start; y < start + 4; y += 1) {
-    for (let x = start; x < start + 4; x += 1) {
+  for (let y = startY; y < startY + 4; y += 1) {
+    for (let x = startX; x < startX + 4; x += 1) {
       if (positionName(x, y) !== corner) cells.push({ x, y });
     }
   }
@@ -65,17 +72,18 @@ function createInitialState({ participantIds, randomInt = secureRandomInt } = {}
   const players = [
     {
       id: playerAId,
-      home: { x: 0, y: 0, name: "a1" },
-      target: { x: 8, y: 8, name: "i9" },
+      home: { x: 0, y: 8, name: "a9" },
+      target: { x: 8, y: 0, name: "i1" },
     },
     {
       id: playerBId,
-      home: { x: 8, y: 8, name: "i9" },
-      target: { x: 0, y: 0, name: "a1" },
+      home: { x: 8, y: 0, name: "i1" },
+      target: { x: 0, y: 8, name: "a9" },
     },
   ];
 
   return {
+    coordinateSystem: COORDINATE_SYSTEM,
     boardSize: BOARD_SIZE,
     turn: 0,
     currentPlayerId: players[firstPlayerIndex].id,
@@ -84,9 +92,80 @@ function createInitialState({ participantIds, randomInt = secureRandomInt } = {}
     winReason: null,
     players,
     pieces: [
-      ...createPlayerPieces(playerAId, "a1", randomInt),
-      ...createPlayerPieces(playerBId, "i9", randomInt),
+      ...createPlayerPieces(playerAId, "a9", randomInt),
+      ...createPlayerPieces(playerBId, "i1", randomInt),
     ],
+    history: [],
+  };
+}
+
+function createTestState({ pieces = [] } = {}) {
+  if (!Array.isArray(pieces)) {
+    throw new Error("TEST_PIECES_INVALID");
+  }
+
+  const ownPieces = pieces.filter((piece) => piece?.side === "own");
+  if (ownPieces.length !== 1) {
+    throw new Error("TEST_REQUIRES_ONE_OWN_PIECE");
+  }
+
+  const occupied = new Set();
+  const sideCounters = { own: 0, opponent: 0 };
+  const normalizedPieces = pieces.map((piece) => {
+    if (!piece || !["own", "opponent"].includes(piece.side)) {
+      throw new Error("TEST_PIECE_SIDE_INVALID");
+    }
+    if (!PIECE_TYPES.includes(piece.type)) {
+      throw new Error("TEST_PIECE_TYPE_INVALID");
+    }
+    if (
+      !Number.isInteger(piece.x) ||
+      !Number.isInteger(piece.y) ||
+      piece.x < 0 ||
+      piece.y < 0 ||
+      piece.x >= BOARD_SIZE ||
+      piece.y >= BOARD_SIZE
+    ) {
+      throw new Error("TEST_PIECE_POSITION_INVALID");
+    }
+
+    const position = `${piece.x},${piece.y}`;
+    if (occupied.has(position)) {
+      throw new Error("TEST_PIECES_OVERLAP");
+    }
+    occupied.add(position);
+
+    sideCounters[piece.side] += 1;
+    return {
+      id: `${piece.side === "own" ? "1" : "2"}-${sideCounters[piece.side]}`,
+      ownerId: piece.side === "own" ? "1" : "2",
+      type: piece.type,
+      x: piece.x,
+      y: piece.y,
+    };
+  });
+
+  return {
+    coordinateSystem: COORDINATE_SYSTEM,
+    boardSize: BOARD_SIZE,
+    turn: 0,
+    currentPlayerId: "1",
+    finished: false,
+    winnerId: null,
+    winReason: null,
+    players: [
+      {
+        id: "1",
+        home: { x: 0, y: 8, name: "a9" },
+        target: { x: 8, y: 0, name: "i1" },
+      },
+      {
+        id: "2",
+        home: { x: 8, y: 0, name: "i1" },
+        target: { x: 0, y: 8, name: "a9" },
+      },
+    ],
+    pieces: normalizedPieces,
     history: [],
   };
 }
@@ -125,12 +204,16 @@ function getLegalMoves(state, playerId) {
   return moves;
 }
 
-function createBotInput(state, playerId) {
+function createBotInput(state, playerId, protocolVersion = 2) {
+  if (![1, 2].includes(protocolVersion)) {
+    throw new Error("BOT_PROTOCOL_UNSUPPORTED");
+  }
   const player = state.players.find((entry) => entry.id === String(playerId));
   if (!player) throw new Error("PLAYER_NOT_FOUND");
 
-  return {
-    protocolVersion: 1,
+  const input = {
+    protocolVersion,
+    coordinateSystem: state.coordinateSystem ?? COORDINATE_SYSTEM,
     playerId: player.id,
     turn: state.turn,
     boardSize: BOARD_SIZE,
@@ -144,14 +227,84 @@ function createBotInput(state, playerId) {
         state.pieces.filter((piece) => piece.ownerId !== player.id)
       ),
     },
-    legalMoves: getLegalMoves(state, player.id),
     rules: {
       types: [...PIECE_TYPES],
       captures: { ...CAPTURES },
-      movement: "one square in any of the eight directions",
+      movement: {
+        maxChebyshevDistance: 1,
+        allowedDeltas: MOVE_DELTAS.map((delta) => ({ ...delta })),
+      },
+      victory: ["reach_opponent_home", "capture_all_opponents"],
       invalidMove: "the piece stays in place and the turn passes",
+      coordinateSystem: COORDINATE_SYSTEM,
     },
   };
+
+  if (protocolVersion === 1) input.legalMoves = getLegalMoves(state, player.id);
+  return input;
+}
+
+function assertValidGameState(state) {
+  if (!state || typeof state !== "object" || state.boardSize !== BOARD_SIZE) {
+    throw new Error("MATCH_STATE_INVALID");
+  }
+  if (
+    state.coordinateSystem !== undefined &&
+    state.coordinateSystem !== COORDINATE_SYSTEM
+  ) {
+    throw new Error("MATCH_COORDINATE_SYSTEM_UNSUPPORTED");
+  }
+  if (!Array.isArray(state.players) || state.players.length !== 2) {
+    throw new Error("MATCH_STATE_INVALID");
+  }
+  if (!Array.isArray(state.pieces) || !Array.isArray(state.history)) {
+    throw new Error("MATCH_STATE_INVALID");
+  }
+
+  const playerIds = new Set(state.players.map((player) => String(player?.id)));
+  if (playerIds.size !== 2 || !playerIds.has(String(state.currentPlayerId))) {
+    throw new Error("MATCH_STATE_INVALID");
+  }
+
+  const expectedHomes = new Set(["0,8", "8,0"]);
+  const actualHomes = new Set(
+    state.players.map((player) => `${player?.home?.x},${player?.home?.y}`)
+  );
+  if (actualHomes.size !== 2 || [...actualHomes].some((home) => !expectedHomes.has(home))) {
+    throw new Error("MATCH_STATE_INVALID");
+  }
+  for (const player of state.players) {
+    const expectedTarget = player.home.x === 0 && player.home.y === 8
+      ? { x: 8, y: 0 }
+      : { x: 0, y: 8 };
+    if (
+      player.target?.x !== expectedTarget.x ||
+      player.target?.y !== expectedTarget.y
+    ) {
+      throw new Error("MATCH_STATE_INVALID");
+    }
+  }
+
+  const pieceIds = new Set();
+  const occupied = new Set();
+  for (const piece of state.pieces) {
+    if (
+      !piece ||
+      typeof piece.id !== "string" ||
+      !playerIds.has(String(piece.ownerId)) ||
+      !PIECE_TYPES.includes(piece.type) ||
+      !Number.isInteger(piece.x) ||
+      !Number.isInteger(piece.y) ||
+      piece.x < 0 || piece.y < 0 ||
+      piece.x >= BOARD_SIZE || piece.y >= BOARD_SIZE ||
+      pieceIds.has(piece.id) ||
+      occupied.has(`${piece.x},${piece.y}`)
+    ) {
+      throw new Error("MATCH_STATE_INVALID");
+    }
+    pieceIds.add(piece.id);
+    occupied.add(`${piece.x},${piece.y}`);
+  }
 }
 
 function validateMove(action, state, playerId) {
@@ -273,13 +426,17 @@ function applyTurn(state, playerId, action, error) {
 
 module.exports = {
   BOARD_SIZE,
+  COORDINATE_SYSTEM,
   PIECES_PER_PLAYER,
   MAX_TURNS,
   PIECE_TYPES,
+  MOVE_DELTAS,
   CAPTURES,
   positionName,
   createInitialState,
+  createTestState,
   createBotInput,
+  assertValidGameState,
   getLegalMoves,
   validateMove,
   applyTurn,

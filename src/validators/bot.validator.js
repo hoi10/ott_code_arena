@@ -1,12 +1,14 @@
 const { z } = require("zod");
 
 const botLanguageSchema = z.enum(["javascript", "cpp", "python"]);
+const protocolVersionSchema = z.union([z.literal(1), z.literal(2)]);
 
 const createBotSchema = z.object({
   name: z.string().trim().min(2).max(100),
   description: z.string().trim().max(500).optional().nullable(),
   sourceCode: z.string().min(1).max(100000),
   language: botLanguageSchema.default("javascript"),
+  protocolVersion: protocolVersionSchema.default(2),
   isPublic: z.boolean().default(false),
 });
 
@@ -16,6 +18,7 @@ const updateBotSchema = z
     description: z.string().trim().max(500).optional().nullable(),
     sourceCode: z.string().min(1).max(100000).optional(),
     language: botLanguageSchema.optional(),
+    protocolVersion: protocolVersionSchema.optional(),
     isActive: z.boolean().optional(),
     isPublic: z.boolean().optional(),
   })
@@ -26,6 +29,7 @@ const updateBotSchema = z
 const testBotSchema = z.object({
   sourceCode: z.string().min(1).max(100000),
   language: botLanguageSchema.default("javascript"),
+  protocolVersion: protocolVersionSchema.default(2),
 });
 
 module.exports = {

@@ -4,15 +4,65 @@
   if (!localStorage.getItem("token")) return;
 
   const presenceKey = "social-presence-session";
+  const leaderKey = "social-notifications-leader";
+  const tabKey = "social-notifications-tab";
   const sessionId =
     localStorage.getItem(presenceKey) ||
     (window.crypto?.randomUUID
       ? window.crypto.randomUUID()
       : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
   localStorage.setItem(presenceKey, sessionId);
+  const tabId =
+    sessionStorage.getItem(tabKey) ||
+    (window.crypto?.randomUUID
+      ? window.crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  sessionStorage.setItem(tabKey, tabId);
 
   let polling = false;
+  let notificationTimer = null;
+  let heartbeatTimer = null;
+  let lastNotificationPollAt = 0;
+  let lastHeartbeatAt = 0;
   let promptOpen = false;
+  const NOTIFICATION_POLL_MS = 5_000;
+  const HEARTBEAT_INTERVAL_MS = 15_000;
+  const LEADER_LEASE_MS = 12_000;
+
+  function readLeader() {
+    try {
+      return JSON.parse(localStorage.getItem(leaderKey) || "null");
+    } catch {
+      return null;
+    }
+  }
+
+  function isLeader() {
+    const leader = readLeader();
+    return Boolean(leader && leader.tabId === tabId && leader.expiresAt > Date.now());
+  }
+
+  function becomeLeader(force = false) {
+    if (document.visibilityState !== "visible") return false;
+    const currentLeader = readLeader();
+    if (
+      !force &&
+      currentLeader &&
+      currentLeader.expiresAt > Date.now() &&
+      currentLeader.tabId !== tabId
+    ) {
+      return false;
+    }
+    localStorage.setItem(
+      leaderKey,
+      JSON.stringify({ tabId, expiresAt: Date.now() + LEADER_LEASE_MS })
+    );
+    return true;
+  }
+
+  function releaseLeader() {
+    if (readLeader()?.tabId === tabId) localStorage.removeItem(leaderKey);
+  }
   const handled = new Set();
   const skippedChallengeKeyPrefix = "ott-skipped-duel-challenge:";
   const toast = document.createElement("div");
@@ -81,13 +131,20 @@
   }
 
   async function sendHeartbeat() {
-    if (document.visibilityState !== "visible") return;
+    if (document.visibilityState !== "visible" || !isLeader()) return;
+    const now = Date.now();
+    if (now - lastHeartbeatAt < HEARTBEAT_INTERVAL_MS) return;
+    lastHeartbeatAt = now;
     await window.api.post("/friends/presence", { sessionId });
   }
 
   async function pollNotifications() {
-    if (polling || document.visibilityState !== "visible") return;
+    if (polling || document.visibilityState !== "visible" || !isLeader()) return;
+    becomeLeader();
+    const now = Date.now();
+    if (now - lastNotificationPollAt < NOTIFICATION_POLL_MS) return;
     polling = true;
+    lastNotificationPollAt = now;
     try {
       await sendHeartbeat();
       const response = await window.api.get("/friends/notifications");
@@ -101,6 +158,27 @@
     } finally {
       polling = false;
     }
+  }
+
+  function scheduleNotificationPoll(delay = NOTIFICATION_POLL_MS) {
+    window.clearTimeout(notificationTimer);
+    if (document.visibilityState !== "visible" || !isLeader()) return;
+    notificationTimer = window.setTimeout(async () => {
+      await pollNotifications();
+      scheduleNotificationPoll();
+    }, delay);
+  }
+
+  function scheduleHeartbeat() {
+    window.clearTimeout(heartbeatTimer);
+    if (document.visibilityState !== "visible" || !isLeader()) return;
+    heartbeatTimer = window.setTimeout(async () => {
+      try {
+        await sendHeartbeat();
+      } finally {
+        scheduleHeartbeat();
+      }
+    }, HEARTBEAT_INTERVAL_MS);
   }
 
   async function processNotifications(data) {
@@ -206,7 +284,33 @@
     }
   }
 
-  void pollNotifications();
-  window.setInterval(() => void pollNotifications(), 3_000);
-  window.addEventListener("focus", () => void pollNotifications());
+  becomeLeader();
+  void pollNotifications().finally(() => {
+    scheduleNotificationPoll();
+    scheduleHeartbeat();
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      becomeLeader(true);
+      void pollNotifications().finally(() => {
+        scheduleNotificationPoll(0);
+        scheduleHeartbeat();
+      });
+      return;
+    }
+    releaseLeader();
+    window.clearTimeout(notificationTimer);
+    window.clearTimeout(heartbeatTimer);
+  });
+  window.addEventListener("focus", () => {
+    becomeLeader(true);
+    if (Date.now() - lastNotificationPollAt >= NOTIFICATION_POLL_MS) {
+      void pollNotifications().finally(() => scheduleNotificationPoll());
+    }
+  });
+  window.addEventListener("pagehide", () => {
+    releaseLeader();
+    window.clearTimeout(notificationTimer);
+    window.clearTimeout(heartbeatTimer);
+  });
 })();

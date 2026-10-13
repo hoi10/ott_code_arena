@@ -4,7 +4,7 @@ let currentSubmissionTotalPages = 1;
 let ownedBots = [];
 
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("submissionForm")?.addEventListener("submit", createSubmission);
+  document.getElementById("submissionForm")?.addEventListener("submit", openPlayground);
   document.getElementById("loadBotCodeBtn")?.addEventListener("click", loadSelectedBotCode);
   document.getElementById("previousPageBtn")?.addEventListener("click", () => {
     if (currentSubmissionPage > 1) loadSubmissions(currentSubmissionPage - 1);
@@ -51,7 +51,7 @@ async function loadSelectedBotCode() {
   showAccountMessage("submissionMessage", `Đã nạp mã của ${bot.name}.`, "success");
 }
 
-async function createSubmission(event) {
+async function openPlayground(event) {
   event.preventDefault();
   const botId = document.getElementById("submissionBot").value;
   const sourceCode = document.getElementById("submissionCode").value;
@@ -60,26 +60,19 @@ async function createSubmission(event) {
     return;
   }
 
-  const payload = {};
-  if (botId) payload.botId = Number(botId);
-  if (sourceCode.trim()) payload.sourceCode = sourceCode;
-
-  const button = document.getElementById("submitSubmissionBtn");
-  button.disabled = true;
-  button.textContent = "Đang chạy bot...";
-  document.getElementById("submissionResult").hidden = true;
   try {
-    const response = await window.api.post("/submissions", payload);
-    const submission = response?.data?.submission;
-    if (!submission) throw new Error("Máy chủ không trả về kết quả kiểm thử.");
-    showSubmissionResult(submission);
-    showAccountMessage("submissionMessage", "Đã lưu kết quả kiểm tra vào lịch sử.", "success");
-    await loadSubmissions(1);
+    const selectedBot = ownedBots.find((item) => String(item.id) === botId);
+    sessionStorage.setItem("ott-code-arena-playground-context", JSON.stringify({
+      origin: "submissions",
+      botId: botId ? Number(botId) : null,
+      language: selectedBot?.language || "javascript",
+      protocolVersion: selectedBot?.protocolVersion || 2,
+      sourceCode: sourceCode.trim() || selectedBot?.sourceCode || ""
+    }));
+    window.location.href = "/bot-playground.html?origin=submissions" +
+      (botId ? "&botId=" + encodeURIComponent(botId) : "");
   } catch (error) {
-    showAccountMessage("submissionMessage", `Không thể chạy kiểm thử: ${error.message}`, "error");
-  } finally {
-    button.disabled = false;
-    button.textContent = "Gửi để kiểm tra";
+    showAccountMessage("submissionMessage", `Không thể mở màn hình kiểm thử: ${error.message}`, "error");
   }
 }
 

@@ -61,19 +61,26 @@ const submissionService = {
     const language = data.sourceCode?.trim()
       ? data.language ?? bot?.language ?? "javascript"
       : bot?.language ?? data.language ?? "javascript";
+    const protocolVersion = bot?.protocolVersion ?? data.protocolVersion ?? 2;
 
     const submission = await submissionRepository.create({
       userId,
       botId: bot?.id ?? null,
       sourceCode,
       language,
+      protocolVersion,
       status: "pending",
     });
 
     try {
-      const evaluation = await botService.testBot(sourceCode, language);
+      const evaluation = await botService.testBot(
+        sourceCode,
+        language,
+        data.testState ?? null,
+        protocolVersion
+      );
       return submissionRepository.updateResult(submission.id, {
-        status: evaluation.valid ? "accepted" : "rejected",
+        status: evaluation.valid ? "accepted" : (evaluation.error ? "failed" : "rejected"),
         result: evaluation,
       });
     } catch (error) {

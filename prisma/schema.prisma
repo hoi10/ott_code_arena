@@ -31,6 +31,7 @@ model Bot {
   description String?  @db.Text
   sourceCode  String   @db.LongText
   language    String   @default("javascript") @db.VarChar(30)
+  protocolVersion Int   @default(1)
   isActive    Boolean  @default(true)
   isPublic    Boolean  @default(false)
   createdAt   DateTime @default(now())
@@ -135,6 +136,7 @@ model Submission {
   id         Int      @id @default(autoincrement())
   sourceCode String   @db.LongText
   language   String   @default("javascript") @db.VarChar(30)
+  protocolVersion Int   @default(1)
   status     String   @default("pending") @db.VarChar(30)
   result     Json?
   createdAt  DateTime @default(now())

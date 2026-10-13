@@ -7,6 +7,7 @@ const {
   changeBotSchema,
 } = require("../src/validators/match.validator");
 const { changePasswordSchema } = require("../src/validators/user.validator");
+const { createSubmissionSchema } = require("../src/validators/submission.validator");
 
 test("bot creation validation matches the JavaScript bot form", () => {
   const bot = createBotSchema.parse({
@@ -82,4 +83,22 @@ test("password changes require a new password distinct from the current one", ()
       newPassword: "short",
     })
   );
+});
+
+test("submission validation accepts a custom one-turn board", () => {
+  const submission = createSubmissionSchema.parse({
+    sourceCode: "print('null')",
+    language: "python",
+    testState: {
+      pieces: [
+        { side: "own", type: "bua", x: 1, y: 1 },
+        { side: "opponent", type: "keo", x: 2, y: 2 },
+      ],
+    },
+  });
+  assert.equal(submission.testState.pieces.length, 2);
+  assert.throws(() => createSubmissionSchema.parse({
+    sourceCode: "return null;",
+    testState: { pieces: [{ side: "own", type: "ruby", x: 1, y: 1 }] },
+  }));
 });

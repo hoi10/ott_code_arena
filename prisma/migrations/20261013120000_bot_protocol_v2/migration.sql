@@ -1,0 +1,5 @@
+ALTER TABLE `Bot`
+    ADD COLUMN `protocolVersion` INTEGER NOT NULL DEFAULT 1;
+
+ALTER TABLE `Submission`
+    ADD COLUMN `protocolVersion` INTEGER NOT NULL DEFAULT 1;

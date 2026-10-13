@@ -28,7 +28,7 @@ validation failures to HTTP responses.
 Bot source is run outside the Express process by language-specific local
 adapters. JavaScript uses a Node.js worker, Python uses the configured
 interpreter, and C++ is compiled with the configured compiler. All three use
-the Bot Arena Protocol v1 and are launched only through an OS sandbox with a
+the Bot Arena Protocol v2 (with v1 compatibility for existing bots) and are launched only through an OS sandbox with a
 short timeout, bounded output, no network, a clean environment, and temporary
 files. The runner returns an independently validated action; it cannot mutate
 the persisted game state. If no supported sandbox exists, execution is refused.
@@ -39,9 +39,13 @@ loads the currently assigned bot, obtains its decision, applies it through the
 rules module, then persists the resulting board and turn history. Invalid
 decisions consume a turn without changing the board.
 
-Submissions reuse the bot test workflow against a newly generated sample
-position. They persist the source and a single-turn outcome. They are not
-ranked matches.
+Submissions reuse the bot test workflow against either a newly generated sample
+position or a server-validated custom one-turn position from the Bot Playground.
+The playground is a separate static page reached from bot creation, saved bots,
+and the submissions page. It only sends piece type/side/coordinates; the server
+assigns IDs, creates the protocol input, computes legal moves, executes the bot,
+and returns the resulting state. Submissions persist the source and a single-turn
+outcome. They are not ranked matches.
 
 ## Data model
 

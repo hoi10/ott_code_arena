@@ -71,7 +71,8 @@ changes are disabled and password changes do not invalidate existing JWTs.
   position and validates its returned move. JavaScript receives the `input`
   function argument; C++ and Python receive the same input as JSON on `stdin`
   and must print exactly one JSON action on `stdout`. Output is validated against
-  Bot Arena Protocol v1 and the sample's `legalMoves` before the game engine.
+  Bot Arena Protocol v2 input before the game engine. Legacy bots can still use
+  Protocol v1, which includes `legalMoves` for backwards compatibility.
 
 ## Matches
 
@@ -196,7 +197,7 @@ bản có bạn bè. Các phòng không bị tự xóa khi mất heartbeat.
 or
 
 ```json
-{ "sourceCode": "return input.legalMoves[0];", "language": "javascript" }
+{ "sourceCode": "const p = input.pieces.own[0]; return p ? { pieceId: p.id, to: { x: p.x + 1, y: p.y } } : null;", "language": "javascript", "protocolVersion": 2 }
 ```
 
 For C++ and Python, `sourceCode` is a complete program. Diagnostics must go to

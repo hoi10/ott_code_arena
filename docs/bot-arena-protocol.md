@@ -1,4 +1,4 @@
-# Bot Arena Protocol v1
+# Bot Arena Protocol v2
 
 Bot Arena dùng một hợp đồng thực thi chung cho JavaScript, Python và C++.
 Ngôn ngữ chỉ thay đổi cách viết source; game engine luôn nhận cùng một action
@@ -11,20 +11,20 @@ object đó vào hàm bot JavaScript:
 
 ```json
 {
-  "protocolVersion": 1,
+  "protocolVersion": 2,
   "playerId": "1",
   "turn": 0,
   "boardSize": 9,
-  "home": {"x": 0, "y": 0, "name": "a1"},
-  "target": {"x": 8, "y": 8, "name": "i9"},
+  "home": {"x": 0, "y": 8, "name": "a9"},
+  "target": {"x": 8, "y": 0, "name": "i1"},
   "pieces": {"own": [], "opponent": []},
-  "legalMoves": [],
   "rules": {}
 }
 ```
 
-`legalMoves` là nguồn tham khảo chính xác cho các nước bot được phép chọn.
-Các field trạng thái khác không cho phép bot thay đổi game state.
+Bot tự phân tích `pieces.own`, `pieces.opponent`, `target`, `home` và `rules` để
+chọn quân, sau đó tự tính một ô đích. `rules.movement.allowedDeltas` liệt kê
+đúng tám độ lệch hợp lệ; bot không nhận sẵn danh sách nước đi.
 
 ## Output
 
@@ -35,8 +35,17 @@ Bot phải ghi đúng một JSON value ra `stdout`:
 ```
 
 Hoặc `null` khi bot không chọn nước đi. Log/debug phải ghi vào `stderr`.
-Runner kiểm tra JSON, schema, `pieceId`, tọa độ và sự tồn tại của nước đi trong
-`legalMoves`; game engine vẫn xác minh lại theo luật thực tế.
+Runner kiểm tra JSON và schema; game engine là nơi duy nhất xác minh `pieceId`,
+tọa độ và toàn bộ luật thực tế, rồi mới tự cập nhật state bàn cờ. Vì vậy bot không
+được tự trả về một tọa độ cách xa quân đang đi, bỏ qua quân chặn, ăn một loại
+quân không khắc chế được hoặc tự quyết định điều kiện thắng. Những nước như
+vậy bị từ chối và không làm thay đổi bàn cờ.
+
+## Protocol v1 legacy
+
+Bot đã lưu với `protocolVersion: 1` tiếp tục nhận thêm `legalMoves` và phải
+chọn một phần tử trong danh sách đó. Đây là lớp tương thích ngược; bot mới
+được tạo với v2.
 
 ## Runtime contract
 

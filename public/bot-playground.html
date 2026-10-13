@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test thế cờ | OTT Code Arena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/social-notifications.css">
+  <link rel="stylesheet" href="/css/bot-playground.css">
+</head>
+<body class="dashboard-page bot-playground-page">
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <a id="backLink" class="btn btn-secondary" href="/submissions.html">← Quay lại</a>
+        <div class="breadcrumb"><span>Khu vực làm việc</span><span class="breadcrumb-separator">/</span><strong>Test thế cờ</strong></div>
+      </div>
+    </header>
+
+    <div class="page-content playground-content">
+      <header class="playground-heading">
+        <p class="account-eyebrow">BOT ARENA PLAYGROUND</p>
+        <h1>Test bot từng nước một</h1>
+        <p>Đặt thế cờ, gửi một lượt chơi vào bot và quan sát nước đi mà mã nguồn trả về.</p>
+      </header>
+
+      <div id="playgroundMessage" class="playground-toast" role="status" aria-live="polite" hidden></div>
+
+      <div class="playground-layout">
+        <section class="content-card board-card">
+          <div class="account-card-heading">
+            <div>
+              <h2>Bàn cờ kiểm thử</h2>
+              <p id="placementHint">Hãy đặt 1 quân của bạn trước.</p>
+            </div>
+            <span class="turn-badge">Lượt của bot</span>
+          </div>
+          <div class="board-legend">
+            <span><i class="legend-own"></i> Quân bạn</span>
+            <span><i class="legend-opponent"></i> Quân đối thủ</span>
+            <span><i class="legend-home-own"></i> Nhà bạn</span>
+            <span><i class="legend-home-opponent"></i> Nhà địch</span>
+          </div>
+          <div id="board" class="test-board" aria-label="Bàn cờ kiểm thử"></div>
+          <div id="pieceMenuBackdrop" class="piece-menu-backdrop" hidden></div>
+          <div id="pieceMenu" class="piece-menu" role="dialog" aria-modal="true" aria-labelledby="pieceMenuTitle" hidden>
+            <div class="piece-menu-header">
+              <div>
+                <span class="piece-menu-kicker">THIẾT LẬP THẾ CỜ</span>
+                <strong id="pieceMenuTitle">Chọn loại quân</strong>
+              </div>
+              <button id="closePieceMenuBtn" class="piece-menu-close" type="button" aria-label="Đóng">×</button>
+            </div>
+            <p id="pieceMenuDescription">Chọn quân để đặt vào ô đã chọn.</p>
+            <div class="piece-menu-actions">
+              <button type="button" data-piece-type="bua"><span class="choice-icon">B</span><span>Búa</span></button>
+              <button type="button" data-piece-type="keo"><span class="choice-icon">K</span><span>Kéo</span></button>
+              <button type="button" data-piece-type="bao"><span class="choice-icon">Bao</span><span>Bao</span></button>
+              <button id="removePieceBtn" type="button" class="remove-piece" hidden>Xoá quân này</button>
+            </div>
+          </div>
+          <div class="playground-actions">
+            <button id="clearBoardBtn" class="btn btn-secondary" type="button">Xoá bàn cờ</button>
+            <button id="testBotBtn" class="btn btn-primary" type="button">Test 1 lượt</button>
+          </div>
+        </section>
+
+        <aside class="playground-side">
+          <section class="content-card code-card">
+            <div class="account-card-heading">
+              <div>
+                <h2>Mã nguồn bot</h2>
+                <p id="botSourceHint">Mã nguồn sẽ nhận trạng thái bàn cờ và phải trả về quân cùng ô đích theo Bot Arena Protocol.</p>
+              </div>
+            </div>
+            <label for="playgroundLanguage">Ngôn ngữ</label>
+            <select id="playgroundLanguage">
+              <option value="javascript">JavaScript</option>
+              <option value="python">Python</option>
+              <option value="cpp">C++</option>
+            </select>
+            <label for="playgroundCode">Mã nguồn</label>
+            <textarea id="playgroundCode" rows="16" spellcheck="false" maxlength="100000" placeholder="Nhập mã bot cần kiểm tra..."></textarea>
+            <p class="field-hint">stdout chỉ được chứa JSON nước đi; log hãy ghi ra stderr. Mỗi lượt chỉ đi 1 ô theo 1 trong 8 hướng. Hệ thống sẽ kiểm tra quân được chọn, ô đích, luật ăn quân và điều kiện thắng.</p>
+          </section>
+
+          <section id="testResult" class="content-card playground-result">
+            <div class="account-card-heading">
+              <div>
+                <h2>Lịch sử test trong phiên</h2>
+                <p>Các kết quả chỉ được giữ tạm thời trên trang này và sẽ mất khi rời khỏi playground.</p>
+              </div>
+              <button id="clearHistoryBtn" class="btn btn-secondary btn-small" type="button">Xoá lịch sử</button>
+            </div>
+            <div id="testHistory" class="test-history-empty">Chưa có lần test nào.</div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+  <script src="/js/api.js"></script>
+  <script src="/js/social-notifications.js"></script>
+  <script src="/js/bot-playground.js?v=20261013-protocol-state"></script>
+</body>
+</html>

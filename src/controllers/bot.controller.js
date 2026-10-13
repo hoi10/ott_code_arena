@@ -70,8 +70,8 @@ const botController = {
 
   async testBot(req, res, next) {
     try {
-      const { sourceCode, language } = testBotSchema.parse(req.body);
-      const result = await botService.testBot(sourceCode, language);
+      const { sourceCode, language, protocolVersion } = testBotSchema.parse(req.body);
+      const result = await botService.testBot(sourceCode, language, null, protocolVersion);
       return res.status(200).json({
         success: true,
         data: result,
@@ -150,7 +150,7 @@ function describeBotError(errorCode) {
     BOT_SANDBOX_UNAVAILABLE: "môi trường sandbox chưa được cấu hình hoặc không khả dụng",
     BOT_INPUT_INVALID: "dữ liệu đầu vào của giao thức bot không hợp lệ",
     BOT_OUTPUT_SCHEMA_INVALID: "bot trả về JSON sai cấu trúc",
-    BOT_OUTPUT_ILLEGAL_MOVE: "bot trả về nước đi không có trong danh sách hợp lệ",
+    BOT_OUTPUT_ILLEGAL_MOVE: "bot trả về nước đi không hợp lệ theo luật chơi",
     BOT_LANGUAGE_CONFIGURATION_INVALID: "cấu hình runtime của ngôn ngữ không hợp lệ",
     BOT_LANGUAGE_UNSUPPORTED: "ngôn ngữ lập trình chưa được hỗ trợ",
     EMPTY_BOT_RESULT: "bot không trả về kết quả",

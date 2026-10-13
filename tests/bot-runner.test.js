@@ -23,6 +23,20 @@ function makeInput() {
   };
 }
 
+function makeProtocolV2Input() {
+  const { legalMoves, ...input } = makeInput();
+  return {
+    ...input,
+    protocolVersion: 2,
+    coordinateSystem: "a1-top-left",
+    pieces: {
+      own: [{ id: "A-1", ownerId: "A", type: "bua", x: 1, y: 1 }],
+      opponent: [],
+    },
+    rules: { captures: { bua: "keo", keo: "bao", bao: "bua" } },
+  };
+}
+
 const pythonBot = `
 import json
 import sys
@@ -59,13 +73,63 @@ test("executes JavaScript with the documented legal-move input", async () => {
     participantIds: ["player", "opponent"],
   });
   const playerId = state.currentPlayerId;
-  const input = gameRules.createBotInput(state, playerId);
+  const input = gameRules.createBotInput(state, playerId, 1);
   const result = await runBot(
     "return input.legalMoves.length ? { pieceId: input.legalMoves[0].pieceId, to: input.legalMoves[0].to } : null;",
     input
   );
 
   assert.equal(gameRules.validateMove(result, state, playerId).valid, true);
+});
+
+test("protocol v2 lets the bot calculate a move from the board", async () => {
+  const input = makeProtocolV2Input();
+  const result = await runBot(
+    "const piece = input.pieces.own[0]; return { pieceId: piece.id, to: { x: piece.x + 1, y: piece.y } };",
+    input
+  );
+
+  assert.deepEqual(result, { pieceId: "A-1", to: { x: 2, y: 1 } });
+  assert.equal(input.legalMoves, undefined);
+  assert.equal(input.coordinateSystem, "a1-top-left");
+});
+
+test("protocol v2 executes Python and C++ bots that choose from board state", async () => {
+  const input = makeProtocolV2Input();
+  const pythonSource = `
+import json, sys
+data = json.load(sys.stdin)
+piece = data["pieces"]["own"][0]
+print(json.dumps({"pieceId": piece["id"], "to": {"x": piece["x"] + 1, "y": piece["y"]}}))
+`;
+  const cppSource = `
+#include <iostream>
+#include <iterator>
+#include <string>
+int main() {
+  std::string input((std::istreambuf_iterator<char>(std::cin)), {});
+  auto own = input.find("\\\"own\\\"");
+  auto idKey = input.find("\\\"id\\\"", own);
+  auto idStart = input.find('\\\"', idKey + 4) + 1;
+  auto idEnd = input.find('\\\"', idStart);
+  auto xKey = input.find("\\\"x\\\"", idEnd);
+  auto yKey = input.find("\\\"y\\\"", xKey);
+  int x = std::stoi(input.substr(input.find(':', xKey) + 1));
+  int y = std::stoi(input.substr(input.find(':', yKey) + 1));
+  std::cout << "{\\\"pieceId\\\":\\\"" << input.substr(idStart, idEnd - idStart)
+            << "\\\",\\\"to\\\":{\\\"x\\\":" << x + 1
+            << ",\\\"y\\\":" << y << "}}";
+}
+`;
+
+  assert.deepEqual(
+    await runBot(pythonSource, input, { language: "python" }),
+    { pieceId: "A-1", to: { x: 2, y: 1 } }
+  );
+  assert.deepEqual(
+    await runBot(cppSource, input, { language: "cpp" }),
+    { pieceId: "A-1", to: { x: 2, y: 1 } }
+  );
 });
 
 test("executes Python and C++ through the same stdin/stdout protocol", async () => {
@@ -90,6 +154,10 @@ test("rejects missing input fields and invalid protocol output", async () => {
   assert.throws(
     () => parseBotOutput('{"pieceId":"A-1","to":{"x":2}}', makeInput()),
     /BOT_OUTPUT_SCHEMA_INVALID/
+  );
+  assert.throws(
+    () => parseBotOutput('{"pieceId":"A-1","to":{"x":8,"y":8}}', makeInput()),
+    /BOT_OUTPUT_ILLEGAL_MOVE/
   );
 });
 
