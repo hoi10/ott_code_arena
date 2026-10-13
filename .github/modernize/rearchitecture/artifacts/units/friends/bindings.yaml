@@ -1,0 +1,4 @@
+unit: friends
+bindings:
+  - {type: route-declaration, name: "authenticated /api/friends routes", source_loc: "src/routes/friend.routes.js:7", target: "friendController", must_appear_in_target: true, notes: "All social flows require authentication."}
+runtime_config: []

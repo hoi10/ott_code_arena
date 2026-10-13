@@ -1,0 +1,9 @@
+unit: matches
+side_effects:
+  - {source_loc: "src/game-engine/match-manager.js:65", effect: "Run the currently assigned bot and persist the resulting game state.", must_preserve: true}
+  - {source_loc: "src/game-engine/engine.js:38", effect: "Advance turn/history even when a bot action is invalid or execution fails.", must_preserve: true}
+branches:
+  - {source_loc: "src/game-engine/engine.js:17", condition: "active bot missing", behavior: "Reject turn with ACTIVE_BOT_NOT_FOUND.", must_preserve: true}
+error_paths:
+  - {source_loc: "src/game-engine/engine.js:24", trigger: "runner failure", outcome: "Treat the bot turn as failed without mutating the board.", contract: "persisted turn result with failure", must_preserve: true}
+concurrency: {model: async, tx_boundary: {source_loc: "src/game-engine/match-manager.js:65", scope: "load participant, execute bot, apply rules, persist match", isolation: "database default", must_preserve: true}}

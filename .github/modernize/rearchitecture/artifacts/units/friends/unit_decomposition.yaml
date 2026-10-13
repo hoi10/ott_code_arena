@@ -1,0 +1,4 @@
+unit: friends
+commit: false
+candidate_splits:
+  - {id: "src/services/friend.service.js:1", drivers: [concern_split, lifecycle_split], rationale: "Friendship, presence, duel challenges, and room invitations have different state machines and expiry rules.", source_slice: {file: src/services/friend.service.js, lines: [1, 1]}}

@@ -1,0 +1,74 @@
+units:
+  - name: auth
+    trigger: api
+    trigger_detail: "POST /api/auth/register; POST /api/auth/login"
+    source_anchors: [{path: src/routes/auth.routes.js, line: 6}]
+    exported_signature: [{method: "HTTP auth response", source_loc: "src/controllers/auth.controller.js:1", stability: frozen}]
+    dynamic_entrypoints: []
+    depends_on: []
+    shared_refs: [{module: auth-middleware, used_fields: [bearer-token parsing, req.user]}]
+  - name: bots
+    trigger: api
+    trigger_detail: "GET/POST/PATCH/DELETE /api/bots; POST /api/bots/test"
+    source_anchors: [{path: src/routes/bot.routes.js, line: 9}]
+    exported_signature: [{method: "POST /api/bots/test -> {valid,reason,action}", source_loc: "src/controllers/bot.controller.js:71", stability: must_preserve}]
+    dynamic_entrypoints: []
+    depends_on: [{unit: submissions, via: "shared test workflow contract"}]
+    shared_refs:
+      - {module: game-rules, used_fields: [createInitialState, createBotInput, validateMove]}
+      - {module: bot-runner, used_fields: [runBot, javascript, cpp, python]}
+      - {module: auth-middleware, used_fields: [bearer-token parsing, req.user]}
+  - name: submissions
+    trigger: api
+    trigger_detail: "GET/POST /api/submissions"
+    source_anchors: [{path: src/routes/submission.routes.js, line: 9}]
+    exported_signature: [{method: "POST /api/submissions -> persisted submission", source_loc: "src/controllers/submission.controller.js:1", stability: must_preserve}]
+    dynamic_entrypoints: []
+    depends_on: [{unit: bots, via: "botService.testBot"}]
+    shared_refs:
+      - {module: game-rules, used_fields: [createInitialState, createBotInput, validateMove]}
+      - {module: bot-runner, used_fields: [runBot, javascript, cpp, python]}
+      - {module: auth-middleware, used_fields: [bearer-token parsing, req.user]}
+  - name: matches
+    trigger: api
+    trigger_detail: "GET/POST /api/matches; PATCH/POST /api/matches/:id"
+    source_anchors: [{path: src/routes/match.routes.js, line: 9}]
+    exported_signature: [{method: "POST /api/matches/:id/run -> persisted turn", source_loc: "src/controllers/match.controller.js:1", stability: must_preserve}]
+    dynamic_entrypoints: []
+    depends_on: [{unit: bots, via: "bot repository and runner"}]
+    shared_refs:
+      - {module: game-rules, used_fields: [createInitialState, createBotInput, validateMove]}
+      - {module: bot-runner, used_fields: [runBot, javascript, cpp, python]}
+      - {module: auth-middleware, used_fields: [bearer-token parsing, req.user]}
+  - name: rooms
+    trigger: api
+    trigger_detail: "GET/POST/PATCH/DELETE /api/rooms and scheduler"
+    source_anchors: [{path: src/routes/room.routes.js, line: 12}]
+    exported_signature: [{method: "room lifecycle HTTP contract", source_loc: "src/controllers/room.controller.js:1", stability: frozen}]
+    dynamic_entrypoints: [{target: room-scheduler, mechanism: convention, source_loc: "src/services/room-scheduler.js:1"}]
+    depends_on: [{unit: matches, via: "scheduled game turns"}, {unit: bots, via: "selected bot"}]
+    shared_refs: [{module: bot-runner, used_fields: [runBot, javascript, cpp, python]}]
+  - name: friends
+    trigger: api
+    trigger_detail: "GET/POST/DELETE /api/friends/*"
+    source_anchors: [{path: src/routes/friend.routes.js, line: 8}]
+    exported_signature: [{method: "friend/invitation HTTP contract", source_loc: "src/controllers/friend.controller.js:1", stability: frozen}]
+    dynamic_entrypoints: []
+    depends_on: [{unit: rooms, via: "room invitations"}]
+    shared_refs: [{module: auth-middleware, used_fields: [bearer-token parsing, req.user]}]
+  - name: users
+    trigger: api
+    trigger_detail: "GET/PATCH /api/users/*"
+    source_anchors: [{path: src/routes/user.routes.js, line: 9}]
+    exported_signature: [{method: "profile/stats/password HTTP contract", source_loc: "src/controllers/user.controller.js:1", stability: frozen}]
+    dynamic_entrypoints: []
+    depends_on: []
+    shared_refs: [{module: auth-middleware, used_fields: [bearer-token parsing, req.user]}]
+  - name: health
+    trigger: api
+    trigger_detail: "GET /api/health"
+    source_anchors: [{path: src/app.js, line: 21}]
+    exported_signature: [{method: "GET /api/health -> status JSON", source_loc: "src/app.js:21", stability: frozen}]
+    dynamic_entrypoints: []
+    depends_on: []
+    shared_refs: []

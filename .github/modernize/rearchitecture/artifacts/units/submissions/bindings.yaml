@@ -1,0 +1,4 @@
+unit: submissions
+bindings:
+  - {type: route-declaration, name: "authenticated /api/submissions routes", source_loc: "src/routes/submission.routes.js:7", target: "submissionController", must_appear_in_target: true, notes: "Submission history and execution endpoints."}
+runtime_config: []

@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#f7f8fc">
     <title>Phòng đấu | OTT Code Arena</title>
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/matches.css?v=20261011-room-credentials">
+    <link rel="stylesheet" href="/css/matches.css?v=20261012-player-labels-motion">
     <link rel="stylesheet" href="/css/social-notifications.css">
 </head>
 <body class="matches-page">
@@ -25,7 +25,7 @@
             <p>Tạo phòng riêng, tìm đối thủ hoặc vào xem những trận đấu đang diễn ra.</p>
         </header>
 
-        <div id="pageMessage" class="create-bot-message" role="status" aria-live="polite"></div>
+        <div id="pageMessage" class="create-bot-message" role="status" aria-live="polite" hidden></div>
 
         <section id="roomsHomePanel">
             <div id="roomActionChoices" class="room-action-choices">
@@ -188,8 +188,8 @@
                     <div class="board-wrap">
                         <div id="matchBoard" class="game-board" role="grid" aria-label="Bàn cờ 9 nhân 9"></div>
                         <div class="board-legend" aria-label="Chú giải quân cờ">
-                            <span><i class="legend-token side-a"></i> Bên A</span>
-                            <span><i class="legend-token side-b"></i> Bên B</span>
+                            <span><i class="legend-token side-a"></i> <span id="sideAName">Người chơi 1</span></span>
+                            <span><i class="legend-token side-b"></i> <span id="sideBName">Người chơi 2</span></span>
                             <span class="last-move-legend"><i aria-hidden="true"></i> Nước đi gần nhất</span>
                             <span class="type-legend">BÚA · KÉO · BAO</span>
                         </div>
@@ -246,6 +246,6 @@
     </main>
     <script src="/js/api.js"></script>
     <script src="/js/social-notifications.js"></script>
-    <script src="/js/matches.js?v=20261011-challenge-expiry-fix"></script>
+    <script src="/js/matches.js?v=20261012-auto-hide-room-toast"></script>
 </body>
 </html>

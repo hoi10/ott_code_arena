@@ -1,6 +1,6 @@
 # OTT Code Arena
 
-OTT Code Arena là nền tảng để người chơi viết bot JavaScript tự chọn nước đi
+OTT Code Arena là nền tảng để người chơi viết bot JavaScript, C++ hoặc Python tự chọn nước đi
 trong các trận Kéo · Búa · Bao trên bàn cờ.
 
 ## Chạy ứng dụng trên máy cá nhân
@@ -61,10 +61,12 @@ của nhà cung cấp dịch vụ.
 
 ## Quy ước viết mã bot
 
-Mã nguồn bot là phần thân của một hàm JavaScript chạy đồng bộ. Bộ máy gọi mã
-theo dạng `function(input) { ... }`. Đối tượng `input` gồm:
+JavaScript là phần thân của một hàm chạy đồng bộ theo dạng `function(input) { ... }`.
+C++ và Python là chương trình hoàn chỉnh: đọc một JSON object từ `stdin` và in
+đúng một JSON action ra `stdout`; không in log vào `stdout`. Đối tượng `input`
+tuân theo Bot Arena Protocol v1 và gồm:
 
-- `playerId`, `turn` và `boardSize`.
+- `protocolVersion`, `playerId`, `turn` và `boardSize`.
 - Tọa độ `home` và `target` của bot.
 - `pieces.own` và `pieces.opponent`; mỗi quân có các thuộc tính `id`, `type`,
   `x` và `y`.
@@ -94,8 +96,9 @@ if (!bestMove) return null;
 return { pieceId: bestMove.pieceId, to: bestMove.to };
 ```
 
-Trả về `null` hoặc một nước đi không hợp lệ sẽ tiêu tốn lượt của bot nhưng
-không di chuyển quân. Trước khi lưu, hãy dùng nút **Kiểm tra nước đi** trong
+Trả về `null` sẽ tiêu tốn lượt của bot nhưng không di chuyển quân. Kết quả sai
+cấu trúc hoặc không nằm trong `legalMoves` bị từ chối trước khi vào game engine.
+Trước khi lưu, hãy dùng nút **Kiểm tra nước đi** trong
 trình soạn thảo bot để chạy thử mã trên một bàn cờ mẫu.
 
 ## API về bot và trận đấu
@@ -103,7 +106,8 @@ trình soạn thảo bot để chạy thử mã trên một bàn cờ mẫu.
 Các API yêu cầu đăng nhập nằm dưới đường dẫn `/api`:
 
 - `POST /bots` tạo bot; `PATCH /bots/:id` cập nhật bot.
-- `POST /bots/test` chạy thử mã nguồn chưa lưu trên bàn cờ mẫu.
+- `POST /bots/test` chạy thử mã nguồn chưa lưu trên bàn cờ mẫu với
+  `language` là `javascript`, `cpp` hoặc `python`.
 - `GET /bots` liệt kê bot của người dùng đã đăng nhập; `GET /bots/public` liệt kê
   các bot đối thủ công khai đang hoạt động mà không tiết lộ mã nguồn.
 - `POST /matches` tạo trận đấu bằng dữ liệu
@@ -119,7 +123,7 @@ Các API yêu cầu đăng nhập nằm dưới đường dẫn `/api`:
   thắng.
 - `PATCH /users/password` đổi mật khẩu sau khi xác minh mật khẩu hiện tại.
 - `GET /submissions` trả về lịch sử kiểm thử bot có phân trang của người dùng;
-  `POST /submissions` chạy một lần bot đã lưu hoặc mã JavaScript được gửi lên
+  `POST /submissions` chạy một lần bot đã lưu hoặc mã JavaScript/C++/Python được gửi lên
   trên bàn cờ mẫu mới. Kết quả gồm `accepted` (nước đi hợp lệ), `rejected`
   (nước đi không hợp lệ) hoặc `failed` (lỗi khi chạy). Đây là kiểm tra mã nguồn,
   không phải trận đấu xếp hạng.
@@ -152,7 +156,27 @@ mời rời phòng. Sau mỗi lượt, trận chờ ít nhất 5 giây mới ch�
 thời gian bot suy nghĩ được cộng thêm nếu bot chạy lâu hơn.
 
 Trang [bot-guide.html](./public/bot-guide.html) hướng dẫn dữ liệu đầu vào, định
-dạng nước đi và ví dụ JavaScript có thể dùng làm điểm bắt đầu.
+dạng nước đi và ví dụ JavaScript, C++/Python có thể dùng làm điểm bắt đầu. Đặc
+tả đầy đủ nằm ở [Bot Arena Protocol v1](./docs/bot-arena-protocol.md).
+
+## Bot runner và sandbox
+
+Bot được chạy ngoài tiến trình Express bằng adapter tương ứng: Node.js cho
+JavaScript, interpreter cấu hình ở `BOT_PYTHON_PATH` cho Python và compiler ở
+`BOT_CPP_COMPILER` cho C++. Ba adapter dùng chung stdin/stdout protocol, giới
+hạn source/input/output và timeout. C++ được biên dịch trong thư mục tạm rồi
+executable và file tạm được xóa sau mỗi lượt.
+
+Runner bắt buộc có sandbox hệ điều hành: macOS dùng `sandbox-exec`, Linux dùng
+`bwrap`. Sandbox chặn mạng, chặn đọc thư mục người dùng/secrets và chặn ghi
+ngoài thư mục tạm. Nếu sandbox không khả dụng, bot bị từ chối với
+`BOT_SANDBOX_UNAVAILABLE`; hệ thống không fallback sang chạy code trực tiếp
+trên host. `sandbox-exec` là cơ chế phát triển/triển khai macOS; production nên
+dùng worker Linux với sandbox được kiểm định và không chạy privileged.
+
+Các giới hạn runtime được cấu hình qua `BOT_TIMEOUT_MS`,
+`BOT_MAX_TIMEOUT_MS`, `BOT_MAX_OUTPUT_BYTES`, `BOT_MAX_SOURCE_LENGTH` và
+`BOT_MAX_INPUT_LENGTH`. Không có API key hay secret nào được truyền vào bot.
 
 Áp dụng schema mới bằng `npx prisma migrate deploy` trước khi chạy phiên bản có
 phòng đấu. Bộ lập lịch trận hiện hoạt động trong một tiến trình máy chủ; không

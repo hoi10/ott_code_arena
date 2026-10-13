@@ -1,0 +1,5 @@
+unit: auth
+bindings:
+  - {type: route-declaration, name: "public /api/auth routes", source_loc: "src/routes/auth.routes.js:6", target: "authController", must_appear_in_target: true, notes: "Register and login do not require bearer auth."}
+runtime_config:
+  - {key: JWT_SECRET/JWT_EXPIRES_IN, source_loc: "src/config/env.js:20", source: env, default_value: "JWT_EXPIRES_IN=1d", must_appear_in_target: true, notes: "JWT signing and expiry."}

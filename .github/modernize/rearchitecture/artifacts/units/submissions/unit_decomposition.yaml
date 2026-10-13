@@ -1,0 +1,4 @@
+unit: submissions
+commit: false
+candidate_splits:
+  - {id: "src/services/submission.service.js:35-87", drivers: [concern_split, reuse_split], rationale: "Submission persistence and bot evaluation are separate concerns and the evaluator is reused by the bot authoring flow.", source_slice: {file: src/services/submission.service.js, lines: [35, 87]}}

@@ -1,0 +1,8 @@
+unit: users
+side_effects:
+  - {source_loc: "src/services/user.service.js:1", effect: "Read/update profile, stats, and password hash.", must_preserve: true}
+branches:
+  - {source_loc: "src/services/user.service.js:1", condition: "current password matches", behavior: "Allow password replacement; otherwise reject.", must_preserve: true}
+error_paths:
+  - {source_loc: "src/controllers/user.controller.js:1", trigger: "ownership or password validation failure", outcome: "Return mapped error without exposing password hash.", contract: "existing HTTP error mapping", must_preserve: true}
+concurrency: {model: async, tx_boundary: {source_loc: "src/services/user.service.js:1", scope: "single user update", isolation: "database default", must_preserve: true}}

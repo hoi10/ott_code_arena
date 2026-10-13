@@ -1,0 +1,4 @@
+unit: health
+bindings:
+  - {type: route-declaration, name: "GET /api/health", source_loc: "src/app.js:21", target: "health response", must_appear_in_target: true, notes: "Unauthenticated readiness response."}
+runtime_config: []

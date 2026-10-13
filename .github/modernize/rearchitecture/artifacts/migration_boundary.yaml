@@ -1,0 +1,40 @@
+user_intent:
+  raw_request: "Continue the interrupted implementation of C++ and Python bot creation and make the project ready to finish."
+  inferred_acceptance:
+    - "Users can create, edit, test, save, and run C++ and Python bots through the same bot and match flows as JavaScript bots."
+    - "The documented input/output contract is identical across languages."
+    - "Automated tests cover protocol validation, local adapter execution, result/error mapping, sandbox failure, and game integration."
+  cleanup_required: false
+strategy: phased
+runtime_reachable:
+  - src/bot-runner/runner.js
+  - src/validators/bot.validator.js
+  - src/validators/submission.validator.js
+  - src/services/bot.service.js
+  - src/services/submission.service.js
+  - src/game-engine/engine.js
+  - public/create-bot.html
+  - public/js/create-bot.js
+must_rewrite:
+  - path: tests/bot-runner.test.js
+    reason: "Add C++/Python execution-contract coverage; current tests cover JavaScript only."
+  - path: tests/validators.test.js
+    reason: "Update stale assertion so the supported-language contract is tested."
+  - path: src/bot-runner/runner.js
+    reason: "Replace the external execution boundary with local language adapters, shared protocol validation, and fail-closed sandbox handling."
+  - path: docs/api.md
+    reason: "Document the local adapter, protocol, and sandbox behavior."
+  - path: README.md
+    reason: "Replace JavaScript-only bot guidance with language-specific adapters."
+copy_as_is:
+  - src/game-engine/game-rules.js
+  - src/game-engine/engine.js
+  - prisma/schema.prisma
+legacy_allowed_to_remain:
+  - "Existing game rules, JavaScript bot syntax, database schema, and existing UI styling."
+defer_cleanup:
+  - "Production hardening of Linux sandbox policy and resource quotas beyond the macOS development policy."
+full_rewrite_reason: null
+implementation_rule: >
+  Implement the listed boundary only. Source anchors describe behavior and are not
+  a blanket instruction to rewrite unrelated room, friend, or profile flows.

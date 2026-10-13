@@ -1,0 +1,5 @@
+unit: health
+side_effects: []
+branches: []
+error_paths: []
+concurrency: {model: sync, tx_boundary: {source_loc: "src/app.js:21", scope: "none", isolation: "none", must_preserve: true}}

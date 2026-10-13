@@ -1,0 +1,37 @@
+modules:
+  - name: game-rules
+    kind: utility
+    source_loc: "src/game-engine/game-rules.js:1"
+    used_by_units: [bots, submissions, matches]
+    fields:
+      - {name: createInitialState, type: "function"}
+      - {name: createBotInput, type: "function"}
+      - {name: validateMove, type: "function"}
+    god_class: false
+    split_candidate: false
+    migration_strategy: copy
+    notes: "Single authority for board state, legal moves, and move validation."
+  - name: bot-runner
+    kind: utility
+    source_loc: "src/bot-runner/runner.js:11"
+    used_by_units: [bots, submissions, matches]
+    fields:
+      - {name: runBot, type: "function"}
+      - {name: javascript, type: "runtime branch"}
+      - {name: cpp, type: "local C++ adapter"}
+      - {name: python, type: "local Python adapter"}
+    god_class: false
+    split_candidate: true
+    migration_strategy: wrap
+    notes: "Keep one public runner contract; isolate language-specific adapters when stabilized."
+  - name: auth-middleware
+    kind: utility
+    source_loc: "src/middlewares/auth.middleware.js:1"
+    used_by_units: [bots, submissions, matches, rooms, friends, users]
+    fields:
+      - {name: bearer-token parsing, type: "middleware behavior"}
+      - {name: req.user, type: "authenticated user"}
+    god_class: false
+    split_candidate: false
+    migration_strategy: copy
+    notes: "Shared protected-route boundary."

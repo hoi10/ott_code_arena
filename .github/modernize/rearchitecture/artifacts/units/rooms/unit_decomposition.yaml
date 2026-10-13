@@ -1,0 +1,4 @@
+unit: rooms
+commit: false
+candidate_splits:
+  - {id: "src/services/room.service.js:1", drivers: [lifecycle_split, concern_split], rationale: "Room access, player readiness, pause/resume, rematch, and viewer presence have separate lifecycle invariants and may need independent units.", source_slice: {file: src/services/room.service.js, lines: [1, 1]}}

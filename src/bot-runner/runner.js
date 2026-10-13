@@ -1,144 +1,69 @@
-const { spawn } = require("child_process");
-const path = require("path");
-const os = require("os");
+const { withTempDirectory } = require("./sandbox");
+const { validateBotInput, parseBotOutput } = require("./protocol");
+const { runJavaScript } = require("./adapters/javascript.adapter");
+const { runPython } = require("./adapters/python.adapter");
+const { runCpp } = require("./adapters/cpp.adapter");
 
-const DEFAULT_TIMEOUT_MS = 3000;
-const MAX_OUTPUT_BYTES = 64 * 1024;
+const DEFAULT_TIMEOUT_MS = Number(process.env.BOT_TIMEOUT_MS) || 3000;
+const MAX_TIMEOUT_MS = Number(process.env.BOT_MAX_TIMEOUT_MS) || 5000;
+const MAX_OUTPUT_BYTES = Number(process.env.BOT_MAX_OUTPUT_BYTES) || 64 * 1024;
+const MAX_SOURCE_LENGTH = Number(process.env.BOT_MAX_SOURCE_LENGTH) || 100000;
+const MAX_INPUT_LENGTH = Number(process.env.BOT_MAX_INPUT_LENGTH) || 100000;
+const MAX_MEMORY_MB = Number(process.env.BOT_MAX_MEMORY_MB) || 128;
+const MAX_PROCESSES = Number(process.env.BOT_MAX_PROCESSES) || 16;
 
-function runBot(sourceCode, input = {}, options = {}) {
-  return new Promise((resolve, reject) => {
-    const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
-    const maxOutputBytes = options.maxOutputBytes ?? MAX_OUTPUT_BYTES;
+const adapters = {
+  javascript: runJavaScript,
+  python: runPython,
+  cpp: runCpp,
+};
 
-    if (typeof sourceCode !== "string" || !sourceCode.trim()) {
-      return reject(new Error("SOURCE_CODE_REQUIRED"));
+async function runBot(sourceCode, input = {}, options = {}) {
+  const language = options.language ?? "javascript";
+  const adapter = adapters[language];
+  if (!adapter) throw new Error("BOT_LANGUAGE_UNSUPPORTED");
+  if (typeof sourceCode !== "string" || !sourceCode.trim()) {
+    throw new Error("SOURCE_CODE_REQUIRED");
+  }
+  if (sourceCode.length > MAX_SOURCE_LENGTH) {
+    throw new Error("SOURCE_CODE_TOO_LARGE");
+  }
+
+  validateBotInput(input);
+  const serializedInput = JSON.stringify(input);
+  if (serializedInput.length > MAX_INPUT_LENGTH) {
+    throw new Error("BOT_INPUT_TOO_LARGE");
+  }
+
+  const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const maxOutputBytes = options.maxOutputBytes ?? MAX_OUTPUT_BYTES;
+  if (!Number.isInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > MAX_TIMEOUT_MS) {
+    throw new Error("INVALID_BOT_TIMEOUT");
+  }
+  if (!Number.isInteger(maxOutputBytes) || maxOutputBytes < 1) {
+    throw new Error("INVALID_BOT_OUTPUT_LIMIT");
+  }
+
+  return withTempDirectory(async (workdir) => {
+    const processResult = await adapter({
+      sourceCode,
+      input,
+      timeoutMs,
+      maxOutputBytes,
+      maxMemoryMb: MAX_MEMORY_MB,
+      maxProcesses: MAX_PROCESSES,
+      workdir,
+    });
+
+    if (processResult.code !== 0) {
+      const detail = processResult.stderr.trim().slice(0, 2000);
+      if (detail.includes("Script execution timed out")) {
+        throw new Error("BOT_EXECUTION_TIMEOUT");
+      }
+      throw new Error(detail ? `BOT_EXECUTION_FAILED: ${detail}` : "BOT_EXECUTION_FAILED");
     }
 
-    const child = spawn(
-      process.execPath,
-      [
-        "--disable-proto=throw",
-        "-e",
-        `
-"use strict";
-const vm = require("vm");
-const fs = require("fs");
-
-let raw = "";
-try {
-  raw = fs.readFileSync(0, "utf8");
-  const payload = JSON.parse(raw);
-  const sandbox = Object.create(null);
-
-  sandbox.input = payload.input;
-  sandbox.result = undefined;
-  sandbox.console = Object.freeze({
-    log: (...args) => {},
-    error: (...args) => {},
-    warn: (...args) => {}
-  });
-
-  vm.createContext(sandbox, {
-    codeGeneration: { strings: false, wasm: false }
-  });
-
-  const wrapped = "(function(input) {\\n" + payload.sourceCode +
-    "\\n})(input)";
-
-  const script = new vm.Script("result = " + wrapped);
-  script.runInContext(sandbox, { timeout: payload.timeoutMs });
-
-  process.stdout.write(JSON.stringify({ success: true, result: sandbox.result }));
-} catch (error) {
-  process.stdout.write(JSON.stringify({
-    success: false,
-    error: String(error && error.message ? error.message : error)
-  }));
-  process.exitCode = 1;
-}
-`,
-      ],
-      {
-        stdio: ["pipe", "pipe", "pipe"],
-        windowsHide: true,
-        env: {
-          PATH: process.env.PATH || "",
-          NODE_ENV: "production",
-        },
-        cwd: os.tmpdir(),
-      }
-    );
-
-    let stdout = "";
-    let stderr = "";
-    let settled = false;
-    let outputBytes = 0;
-
-    const timer = setTimeout(() => {
-      child.kill("SIGKILL");
-      finish(new Error("BOT_EXECUTION_TIMEOUT"));
-    }, timeoutMs + 1000);
-
-    function finish(error, result) {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-
-      if (error) reject(error);
-      else resolve(result);
-    }
-
-    child.stdout.on("data", (chunk) => {
-      outputBytes += chunk.length;
-
-      if (outputBytes > maxOutputBytes) {
-        child.kill("SIGKILL");
-        finish(new Error("BOT_OUTPUT_LIMIT_EXCEEDED"));
-        return;
-      }
-
-      stdout += chunk.toString("utf8");
-    });
-
-    child.stderr.on("data", (chunk) => {
-      if (stderr.length < 4096) {
-        stderr += chunk.toString("utf8").slice(0, 4096 - stderr.length);
-      }
-    });
-
-    child.on("error", (error) => {
-      finish(error);
-    });
-
-    child.on("close", () => {
-      if (settled) return;
-
-      let parsed;
-
-      try {
-        parsed = JSON.parse(stdout);
-      } catch {
-        return finish(
-          new Error(stderr || "BOT_EXECUTION_FAILED")
-        );
-      }
-
-      if (!parsed.success) {
-        return finish(new Error(parsed.error || "BOT_EXECUTION_FAILED"));
-      }
-
-      finish(null, parsed.result);
-    });
-
-    child.stdin.on("error", () => {});
-
-    child.stdin.end(
-      JSON.stringify({
-        sourceCode,
-        input,
-        timeoutMs,
-      })
-    );
+    return parseBotOutput(processResult.stdout, input);
   });
 }
 

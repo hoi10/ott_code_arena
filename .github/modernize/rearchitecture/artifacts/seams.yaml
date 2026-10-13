@@ -1,0 +1,16 @@
+seams:
+  - id: src/bot-runner/runner.js:22
+    description: "Application bot contract crosses into a local language adapter and OS sandbox for source execution."
+    source: inferred
+    cut_between: {migrated_side: bots, frozen_side: game_engine}
+    protocol_shift: {from: internal bot input, to: local process stdin/stdout}
+    frozen_side_rule: "Game engine remains the authority for rules and persisted state; adapters may only produce a protocol action."
+    bridge_points:
+      - at: "src/bot-runner/runner.js:37"
+        from_form: "bot input object"
+        to_form: "Sandboxed local process with JSON stdin/stdout"
+        mapping_rule: "Serialize the complete protocol input as JSON stdin for Python/C++; pass the same object as input to the JavaScript worker; parse and validate one JSON action from stdout."
+        edge_cases: ["C++ compiler diagnostics become BOT_COMPILATION_FAILED.", "Non-JSON or empty stdout becomes INVALID_BOT_RESULT_JSON or EMPTY_BOT_RESULT.", "Process timeout becomes BOT_EXECUTION_TIMEOUT.", "Missing sandbox becomes BOT_SANDBOX_UNAVAILABLE with no host fallback."]
+        idempotency_retry: "Do not retry a bot process automatically; a single bot turn has one execution attempt."
+        fallback: "Unavailable sandbox surfaces BOT_SANDBOX_UNAVAILABLE and the caller records a failed submission or consumes the match turn according to existing rules."
+        must_preserve: true

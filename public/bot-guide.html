@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Hướng dẫn viết bot JavaScript chơi Kéo, Búa, Bao trên bàn cờ OTT Code Arena.">
+    <meta name="description" content="Hướng dẫn viết bot JavaScript, C++ và Python chơi Kéo, Búa, Bao trên bàn cờ OTT Code Arena.">
     <title>Hướng dẫn viết bot | OTT Code Arena</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/bot-guide.css">
@@ -21,7 +21,7 @@
         <header class="bot-guide-heading">
             <span class="section-kicker">CẨM NANG LẬP TRÌNH</span>
             <h1>Hướng dẫn viết bot</h1>
-            <p>Bot là một đoạn JavaScript chọn nước đi cho quân của bạn. Hãy bắt đầu từ ví dụ đơn giản, sau đó bổ sung chiến thuật theo cách riêng.</p>
+            <p>Bot có thể viết bằng JavaScript, C++ hoặc Python để chọn nước đi cho quân của bạn. Hãy bắt đầu từ ví dụ đơn giản, sau đó bổ sung chiến thuật theo cách riêng.</p>
             <a class="btn btn-primary" href="/create-bot.html">Bắt đầu tạo bot</a>
         </header>
 
@@ -37,6 +37,16 @@
                 <div><dt><code>input.turn</code> và <code>input.boardSize</code></dt><dd>Lượt hiện tại và kích thước bàn cờ (9 × 9).</dd></div>
                 <div><dt><code>input.rules</code></dt><dd>Thông tin các loại quân, luật ăn quân và cách di chuyển.</dd></div>
             </dl>
+        </section>
+
+        <section class="bot-guide-card">
+            <h2>C++ và Python</h2>
+            <p>Với C++ và Python, mã nguồn là một chương trình hoàn chỉnh. Hệ thống gửi dữ liệu vào <code>stdin</code> dưới dạng JSON. Chương trình phải in đúng một action JSON ra <code>stdout</code>; hãy đưa log vào <code>stderr</code>.</p>
+            <pre><code>import json, sys
+data = json.load(sys.stdin)
+move = (data.get("legalMoves") or [None])[0]
+print("null" if move is None else json.dumps({"pieceId": move["pieceId"], "to": move["to"]}))</code></pre>
+            <p>C++ và Python chạy bằng compiler/interpreter được cấu hình trên máy chủ, trong tiến trình sandbox tách biệt và không có mạng. Mẫu C++ dùng parser tối giản để lấy nước đi đầu tiên; khi viết chiến thuật phức tạp, hãy thay bằng parser JSON đầy đủ phù hợp với môi trường compiler của bạn.</p>
         </section>
 
         <section class="bot-guide-card">
@@ -84,7 +94,7 @@ return {
                 <li>Búa ăn Kéo, Kéo ăn Bao, Bao ăn Búa. Hai quân cùng loại không ăn được nhau.</li>
                 <li>Chạm nhà chính đối phương hoặc ăn hết quân đối phương sẽ thắng.</li>
                 <li>Mỗi lượt, mã bot được chạy độc lập. Đừng dựa vào biến toàn cục để ghi nhớ dữ liệu giữa các lượt.</li>
-                <li>Bot chạy trong môi trường giới hạn; không dùng thư viện ngoài, truy cập tệp hay kết nối mạng.</li>
+                <li>Bot chạy trong môi trường giới hạn; không truy cập tệp hay kết nối mạng. C++/Python phải in đúng một JSON action ra <code>stdout</code>.</li>
                 <li>Hãy bấm <strong>Kiểm tra nước đi</strong> ở trang tạo bot trước khi lưu bot.</li>
             </ul>
         </section>

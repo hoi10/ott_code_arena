@@ -1,0 +1,4 @@
+unit: rooms
+bindings:
+  - {type: route-declaration, name: "public, optional-auth, and protected /api/rooms routes", source_loc: "src/routes/room.routes.js:12", target: "roomController", must_appear_in_target: true, notes: "Viewer and player access differ."}
+runtime_config: []

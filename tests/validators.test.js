@@ -32,13 +32,29 @@ test("match routes validate their request bodies and query parameters", () => {
   });
 });
 
-test("rejects duplicate opponents and unsupported bot languages", () => {
+test("rejects duplicate opponents and accepts supported bot languages", () => {
   assert.throws(() => createMatchSchema.parse({ botIds: [3, 3] }));
+  assert.equal(
+    createBotSchema.parse({
+      name: "Python bot",
+      sourceCode: "print('{}')",
+      language: "python",
+    }).language,
+    "python"
+  );
+  assert.equal(
+    createBotSchema.parse({
+      name: "C++ bot",
+      sourceCode: "int main() {}",
+      language: "cpp",
+    }).language,
+    "cpp"
+  );
   assert.throws(() =>
     createBotSchema.parse({
       name: "Unsupported",
       sourceCode: "return null;",
-      language: "python",
+      language: "ruby",
     })
   );
 });

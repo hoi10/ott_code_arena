@@ -67,8 +67,11 @@ changes are disabled and password changes do not invalidate existing JWTs.
   `description`, `language`, and `isPublic`.
 - `PATCH /bots/:id` updates an owned bot.
 - `DELETE /bots/:id` deletes an owned bot unless it has participated in a match.
-- `POST /bots/test` executes unsaved JavaScript against a sample position and
-  validates its returned move.
+- `POST /bots/test` executes unsaved JavaScript, C++, or Python against a sample
+  position and validates its returned move. JavaScript receives the `input`
+  function argument; C++ and Python receive the same input as JSON on `stdin`
+  and must print exactly one JSON action on `stdout`. Output is validated against
+  Bot Arena Protocol v1 and the sample's `legalMoves` before the game engine.
 
 ## Matches
 
@@ -195,6 +198,13 @@ or
 ```json
 { "sourceCode": "return input.legalMoves[0];", "language": "javascript" }
 ```
+
+For C++ and Python, `sourceCode` is a complete program. Diagnostics must go to
+`stderr`, not `stdout`. Supported values are `javascript`, `cpp`, and `python`.
+Execution is performed by local runtime/compiler adapters in an OS sandbox; no
+Judge0, Piston, or other remote code-execution service is used. If a supported
+sandbox is unavailable, the request fails safely instead of running source code
+directly in the API process or host.
 
 When both `botId` and `sourceCode` are supplied, the supplied code is checked
 and associated with that owned bot. The result is saved as `accepted` for a

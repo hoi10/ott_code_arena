@@ -1,0 +1,8 @@
+unit: friends
+side_effects:
+  - {source_loc: "src/services/friend.service.js:1", effect: "Persist friend requests, presence, and social invitations.", must_preserve: true}
+branches:
+  - {source_loc: "src/services/friend.service.js:88", condition: "target user has an active bot", behavior: "Allow duel invitation workflow only when bot prerequisite is met.", must_preserve: true}
+error_paths:
+  - {source_loc: "src/controllers/friend.controller.js:1", trigger: "self request or expired invitation", outcome: "Reject with domain error.", contract: "existing HTTP error mapping", must_preserve: true}
+concurrency: {model: async, tx_boundary: {source_loc: "src/services/friend.service.js:1", scope: "invitation and friendship persistence", isolation: "database default", must_preserve: true}}

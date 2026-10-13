@@ -1,0 +1,50 @@
+contracts:
+  - name: create-bot
+    unit: bots
+    type: rest
+    stability: must_preserve
+    source_loc: "src/routes/bot.routes.js:13"
+    contract:
+      method: POST
+      path: /api/bots
+      request: "{name, sourceCode, description?, language?: javascript|cpp|python, isPublic?}"
+      response: "201 {success:true,data:{bot}}"
+      error: "400 validation; 401 missing auth"
+      auth: bearer JWT
+    target_contract:
+      method: "POST /api/bots with language in {javascript, cpp, python}"
+      notes: "Persist language and return it in owned-bot responses."
+    semantic_divergence: []
+  - name: test-bot
+    unit: bots
+    type: rest
+    stability: must_preserve
+    source_loc: "src/routes/bot.routes.js:10"
+    contract:
+      method: POST
+      path: /api/bots/test
+      request: "{sourceCode, language}"
+      response: "200 {success:true,data:{valid,reason,action}}"
+      error: "422 execution/compilation errors"
+      auth: bearer JWT
+    target_contract:
+      method: "POST /api/bots/test accepts cpp and python and validates the returned action"
+      notes: "The input object is identical across languages; only the source adapter differs."
+    semantic_divergence:
+      - {field: stdout, issue: "C++/Python must print exactly one JSON action; diagnostic output must not corrupt stdout.", source_loc: "src/bot-runner/runner.js:93"}
+  - name: test-submission
+    unit: submissions
+    type: rest
+    stability: must_preserve
+    source_loc: "src/routes/submission.routes.js:11"
+    contract:
+      method: POST
+      path: /api/submissions
+      request: "{botId? | sourceCode, language?}"
+      response: "201 submission with accepted|rejected|failed and JSON result"
+      error: "400 validation; 401 missing auth"
+      auth: bearer JWT
+    target_contract:
+      method: "POST /api/submissions uses the same language enum and persists execution result"
+      notes: "A saved bot uses Bot.language; supplied source may override language."
+    semantic_divergence: []

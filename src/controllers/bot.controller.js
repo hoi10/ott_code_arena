@@ -70,8 +70,8 @@ const botController = {
 
   async testBot(req, res, next) {
     try {
-      const { sourceCode } = testBotSchema.parse(req.body);
-      const result = await botService.testBot(sourceCode);
+      const { sourceCode, language } = testBotSchema.parse(req.body);
+      const result = await botService.testBot(sourceCode, language);
       return res.status(200).json({
         success: true,
         data: result,
@@ -139,14 +139,27 @@ const botController = {
 };
 
 function describeBotError(errorCode) {
+  const code = String(errorCode).split(":", 1)[0];
   return {
     BOT_EXECUTION_TIMEOUT: "bot chạy quá thời gian cho phép",
     BOT_OUTPUT_LIMIT_EXCEEDED: "kết quả bot trả về vượt quá giới hạn",
+    BOT_COMPILATION_FAILED: "mã nguồn không biên dịch được",
     BOT_EXECUTION_FAILED: "đã xảy ra lỗi khi thực thi mã",
+    BOT_RUNNER_UNAVAILABLE: "bộ chạy bot không khả dụng",
+    BOT_RUNNER_INVALID_RESPONSE: "bộ chạy bot trả về phản hồi không hợp lệ",
+    BOT_SANDBOX_UNAVAILABLE: "môi trường sandbox chưa được cấu hình hoặc không khả dụng",
+    BOT_INPUT_INVALID: "dữ liệu đầu vào của giao thức bot không hợp lệ",
+    BOT_OUTPUT_SCHEMA_INVALID: "bot trả về JSON sai cấu trúc",
+    BOT_OUTPUT_ILLEGAL_MOVE: "bot trả về nước đi không có trong danh sách hợp lệ",
+    BOT_LANGUAGE_CONFIGURATION_INVALID: "cấu hình runtime của ngôn ngữ không hợp lệ",
+    BOT_LANGUAGE_UNSUPPORTED: "ngôn ngữ lập trình chưa được hỗ trợ",
+    EMPTY_BOT_RESULT: "bot không trả về kết quả",
+    INVALID_BOT_RESULT_JSON: "bot trả về kết quả không phải JSON hợp lệ",
     SOURCE_CODE_REQUIRED: "chưa có mã nguồn",
     SOURCE_CODE_TOO_LARGE: "mã nguồn vượt quá dung lượng cho phép",
     BOT_INPUT_TOO_LARGE: "dữ liệu bàn cờ vượt quá giới hạn",
-  }[errorCode] || "mã bot không thể thực thi";
+    INVALID_BOT_TIMEOUT: "thời gian chạy bot không hợp lệ",
+  }[code] || "mã bot không thể thực thi";
 }
 
 module.exports = botController;

@@ -1,0 +1,7 @@
+unit: auth
+side_effects:
+  - {source_loc: "src/controllers/auth.controller.js:1", effect: "Create users and issue JWT access tokens.", must_preserve: true}
+branches: []
+error_paths:
+  - {source_loc: "src/controllers/auth.controller.js:1", trigger: "invalid credentials or duplicate identity", outcome: "Return mapped authentication/validation error.", contract: "existing HTTP auth response", must_preserve: true}
+concurrency: {model: async, tx_boundary: {source_loc: "src/services/auth.service.js:1", scope: "user creation or login lookup", isolation: "database default", must_preserve: true}}

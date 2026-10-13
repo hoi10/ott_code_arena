@@ -1,0 +1,12 @@
+unit: bots
+side_effects:
+  - {source_loc: "src/services/bot.service.js:28", effect: "Create/update/delete owned Bot records including language and source code.", must_preserve: true}
+  - {source_loc: "src/services/bot.service.js:44", effect: "Execute one bot against a freshly generated sample position.", must_preserve: true}
+branches:
+  - {source_loc: "src/bot-runner/runner.js:12", condition: "language is javascript, cpp, or python", behavior: "Select the corresponding local execution adapter and shared Bot Arena Protocol parser.", must_preserve: true}
+  - {source_loc: "src/bot-runner/protocol.js:3", effect: "Validate protocol input and ensure output is one JSON action or null; reject actions outside legalMoves.", must_preserve: true}
+  - {source_loc: "src/bot-runner/sandbox.js:7", effect: "Run source only in an OS sandbox with clean environment, no network, bounded output and temporary files; refuse execution when unavailable.", must_preserve: true}
+error_paths:
+  - {source_loc: "src/controllers/bot.controller.js:80", trigger: "runner/compilation/JSON error", outcome: "Return 422 with a mapped bot error.", contract: "HTTP 422 JSON error response", must_preserve: true}
+  - {source_loc: "src/services/bot.service.js:61", trigger: "bot not owned", outcome: "Reject update/delete.", contract: "BOT_NOT_FOUND", must_preserve: true}
+concurrency: {model: async, tx_boundary: {source_loc: "src/services/bot.service.js:28", scope: "single bot persistence operation", isolation: "database default", must_preserve: true}}

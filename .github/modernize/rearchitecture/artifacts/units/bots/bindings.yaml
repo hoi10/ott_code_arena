@@ -1,0 +1,6 @@
+unit: bots
+bindings:
+  - {type: route-declaration, name: "authenticated /api/bots routes", source_loc: "src/routes/bot.routes.js:7", target: "botController", must_appear_in_target: true, notes: "All bot routes require bearer auth."}
+runtime_config:
+  - {key: BOT_PYTHON_PATH/BOT_CPP_COMPILER, source_loc: ".env.example:6", source: env, default_value: "python3/g++", must_appear_in_target: true, notes: "Local language runtime and compiler selection."}
+  - {key: BOT_TIMEOUT_MS/BOT_MAX_TIMEOUT_MS/BOT_MAX_OUTPUT_BYTES, source_loc: "src/bot-runner/runner.js:7", source: env, default_value: "3000/5000/65536", must_appear_in_target: true, notes: "Execution and output limits; sandbox failure is fail-closed."}

@@ -1,0 +1,9 @@
+unit: submissions
+side_effects:
+  - {source_loc: "src/services/submission.service.js:65", effect: "Persist pending source/language submission before execution.", must_preserve: true}
+  - {source_loc: "src/services/submission.service.js:75", effect: "Persist accepted, rejected, or failed result.", must_preserve: true}
+branches:
+  - {source_loc: "src/services/submission.service.js:54", condition: "saved bot versus supplied source", behavior: "Resolve source and language using the documented precedence.", must_preserve: true}
+error_paths:
+  - {source_loc: "src/services/submission.service.js:79", trigger: "bot execution failure", outcome: "Return and persist failed result without throwing to the client.", contract: "submission.status=failed", must_preserve: true}
+concurrency: {model: async, tx_boundary: {source_loc: "src/services/submission.service.js:65", scope: "submission create followed by result update", isolation: "database default", must_preserve: true}}

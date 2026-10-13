@@ -36,14 +36,15 @@ const botService = {
     });
   },
 
-  async testBot(sourceCode) {
+  async testBot(sourceCode, language = "javascript") {
     const state = gameRules.createInitialState({
       participantIds: ["1", "2"],
     });
     const playerId = state.currentPlayerId;
     const action = await runBot(
       sourceCode,
-      gameRules.createBotInput(state, playerId)
+      gameRules.createBotInput(state, playerId),
+      { language }
     );
     const validation = gameRules.validateMove(action, state, playerId);
 

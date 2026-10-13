@@ -1,0 +1,31 @@
+flows:
+  - name: authenticated-user
+    medium: jwt-claim
+    key: req.user.id
+    writer: {unit: auth, source_loc: "src/middlewares/auth.middleware.js:25"}
+    reader: {unit: bots, source_loc: "src/controllers/bot.controller.js:11"}
+    pairing: matched
+    must_preserve: true
+    must_confirm: null
+    verification_hint: "Protected bot request resolves the same user ID from the bearer token."
+    notes: "The same flow is read by submissions, matches, rooms, friends, and users."
+  - name: bot-language
+    medium: database
+    key: Bot.language
+    writer: {unit: bots, source_loc: "src/services/bot.service.js:33"}
+    reader: {unit: matches, source_loc: "src/game-engine/engine.js:27"}
+    pairing: matched
+    must_preserve: true
+    must_confirm: null
+    verification_hint: "A saved cpp/python bot reaches runBot with the stored language."
+    notes: "Submission reads the same field when testing a saved bot."
+  - name: local-runtime-configuration
+    medium: env
+    key: BOT_PYTHON_PATH/BOT_CPP_COMPILER/BOT_*_LIMIT
+    writer: {unit: external, source_loc: ".env.example:6"}
+    reader: {unit: bots, source_loc: "src/bot-runner/runner.js:7"}
+    pairing: external-writer
+    must_preserve: true
+    must_confirm: runtime
+    verification_hint: "Run JavaScript, Python, and C++ smoke tests through the configured local adapters and verify sandbox capability."
+    notes: "Runtime/compiler paths and OS sandbox availability are deployment concerns; no remote execution service is used."

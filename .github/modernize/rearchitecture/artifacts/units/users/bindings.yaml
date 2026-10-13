@@ -1,0 +1,4 @@
+unit: users
+bindings:
+  - {type: route-declaration, name: "authenticated /api/users routes", source_loc: "src/routes/user.routes.js:7", target: "userController", must_appear_in_target: true, notes: "Profile and password APIs."}
+runtime_config: []

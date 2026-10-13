@@ -130,6 +130,7 @@ function createBotInput(state, playerId) {
   if (!player) throw new Error("PLAYER_NOT_FOUND");
 
   return {
+    protocolVersion: 1,
     playerId: player.id,
     turn: state.turn,
     boardSize: BOARD_SIZE,

@@ -4,7 +4,7 @@ const createSubmissionSchema = z
   .object({
     botId: z.number().int().positive().optional().nullable(),
     sourceCode: z.string().min(1).max(100000).optional(),
-    language: z.enum(["javascript"]).default("javascript"),
+    language: z.enum(["javascript", "cpp", "python"]).default("javascript"),
   })
   .refine(
     (data) =>

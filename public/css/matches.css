@@ -674,6 +674,7 @@
     width: 78%;
     height: 78%;
     letter-spacing: -0.4px;
+    will-change: transform;
 }
 
 .side-a {

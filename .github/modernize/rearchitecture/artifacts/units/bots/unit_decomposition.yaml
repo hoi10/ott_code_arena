@@ -1,0 +1,4 @@
+unit: bots
+commit: false
+candidate_splits:
+  - {id: "src/bot-runner/runner.js:11-103", drivers: [execution_model_split, concern_split], rationale: "The public bot runner delegates to local JavaScript, Python, and C++ adapters while preserving one protocol and sandbox contract.", source_slice: {file: src/bot-runner/runner.js, lines: [11, 103]}}

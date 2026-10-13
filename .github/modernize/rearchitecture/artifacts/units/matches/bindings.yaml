@@ -1,0 +1,4 @@
+unit: matches
+bindings:
+  - {type: route-declaration, name: "authenticated /api/matches routes", source_loc: "src/routes/match.routes.js:7", target: "matchController", must_appear_in_target: true, notes: "Direct match API."}
+runtime_config: []

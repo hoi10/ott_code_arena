@@ -58,16 +58,20 @@ const submissionService = {
       throw new Error("SOURCE_CODE_REQUIRED");
     }
 
+    const language = data.sourceCode?.trim()
+      ? data.language ?? bot?.language ?? "javascript"
+      : bot?.language ?? data.language ?? "javascript";
+
     const submission = await submissionRepository.create({
       userId,
       botId: bot?.id ?? null,
       sourceCode,
-      language: data.language ?? bot?.language ?? "javascript",
+      language,
       status: "pending",
     });
 
     try {
-      const evaluation = await botService.testBot(sourceCode);
+      const evaluation = await botService.testBot(sourceCode, language);
       return submissionRepository.updateResult(submission.id, {
         status: evaluation.valid ? "accepted" : "rejected",
         result: evaluation,

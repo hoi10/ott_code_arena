@@ -23,7 +23,8 @@ async function runTurn({ state, participants, runBot }) {
   try {
     action = await runBot(
       currentParticipant.bot.sourceCode,
-      gameRules.createBotInput(state, currentParticipant.id)
+      gameRules.createBotInput(state, currentParticipant.id),
+      { language: currentParticipant.bot.language ?? "javascript" }
     );
   } catch (runError) {
     error = runError;

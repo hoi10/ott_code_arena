@@ -25,9 +25,13 @@ validation failures to HTTP responses.
 
 ## Bot execution and game rules
 
-Bot source is run in a separate Node.js process with a VM context, a short
-execution timeout, bounded output, and no application environment variables.
-The runner returns an action; it cannot mutate the persisted game state.
+Bot source is run outside the Express process by language-specific local
+adapters. JavaScript uses a Node.js worker, Python uses the configured
+interpreter, and C++ is compiled with the configured compiler. All three use
+the Bot Arena Protocol v1 and are launched only through an OS sandbox with a
+short timeout, bounded output, no network, a clean environment, and temporary
+files. The runner returns an independently validated action; it cannot mutate
+the persisted game state. If no supported sandbox exists, execution is refused.
 
 `src/game-engine/game-rules.js` is the rules authority for the 9×9 board,
 movement, captures, legal actions, and victory conditions. The match manager

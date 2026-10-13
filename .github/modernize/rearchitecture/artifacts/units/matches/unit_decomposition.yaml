@@ -1,0 +1,4 @@
+unit: matches
+commit: false
+candidate_splits:
+  - {id: "src/game-engine/match-manager.js:1-110", drivers: [lifecycle_split, data_ownership_split], rationale: "Match creation, bot switching, execution, and persistence form distinct lifecycle responsibilities with shared participant state.", source_slice: {file: src/game-engine/match-manager.js, lines: [1, 110]}}

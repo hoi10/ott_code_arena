@@ -18,6 +18,54 @@
     const botId = params.get("id");
     const isEditMode = Boolean(botId);
     const draftKey = "ott-code-arena-bot-draft";
+    const starterCode = {
+        javascript: `const moves = input.legalMoves || [];
+if (!moves.length) return null;
+return { pieceId: moves[0].pieceId, to: moves[0].to };`,
+        python: `import json
+import sys
+
+data = json.load(sys.stdin)
+moves = data.get("legalMoves", [])
+if not moves:
+    print("null")
+else:
+    move = moves[0]
+    print(json.dumps({"pieceId": move["pieceId"], "to": move["to"]}))`,
+        cpp: `#include <iostream>
+#include <iterator>
+#include <string>
+
+int main() {
+    std::string input((std::istreambuf_iterator<char>(std::cin)), {});
+    const auto legalMoves = input.find("\\\"legalMoves\\\"");
+    const auto listStart = input.find('[', legalMoves);
+    const auto firstToken = input.find_first_not_of(" \\t\\r\\n", listStart + 1);
+    if (listStart == std::string::npos || firstToken == std::string::npos ||
+        input[firstToken] == ']') {
+        std::cout << "null";
+        return 0;
+    }
+    const auto firstObject = firstToken;
+    const auto pieceKey = input.find("\\\"pieceId\\\"", firstObject);
+    const auto pieceStart = input.find('\\\"', pieceKey + 10) + 1;
+    const auto pieceEnd = input.find('\\\"', pieceStart);
+    const auto xKey = input.find("\\\"x\\\"", pieceEnd);
+    const auto xStart = input.find(':', xKey) + 1;
+    const auto xEnd = input.find(',', xStart);
+    const auto yKey = input.find("\\\"y\\\"", xEnd);
+    const auto yStart = input.find(':', yKey) + 1;
+    const auto yEnd = input.find_first_of("},", yStart);
+    if (pieceKey == std::string::npos || pieceEnd == std::string::npos ||
+        xKey == std::string::npos || yKey == std::string::npos) {
+        std::cout << "null";
+        return 0;
+    }
+    std::cout << "{\\\"pieceId\\\":\\\"" << input.substr(pieceStart, pieceEnd - pieceStart)
+              << "\\\",\\\"to\\\":{\\\"x\\\":" << input.substr(xStart, xEnd - xStart)
+              << ",\\\"y\\\":" << input.substr(yStart, yEnd - yStart) << "}}";
+}`
+    };
 
     function showMessage(message, type) {
         messageBox.textContent = message;
@@ -39,6 +87,21 @@
         const code = codeInput.value;
         characterCount.textContent = code.length.toLocaleString() + " ký tự";
         lineCount.textContent = (code.length ? code.split("\n").length : 1) + " dòng";
+    }
+
+    function updateEditorLanguage() {
+        const extensions = {
+            javascript: "main.js",
+            cpp: "main.cpp",
+            python: "main.py"
+        };
+        fileName.textContent = extensions[languageInput.value] || "main.txt";
+    }
+
+    function fillStarterCodeIfEmpty() {
+        if (!codeInput.value.trim()) {
+            codeInput.value = starterCode[languageInput.value] || "";
+        }
     }
 
     function getVisibility() {
@@ -78,6 +141,9 @@
 
             const draft = JSON.parse(savedDraft);
             if (typeof draft.name === "string") nameInput.value = draft.name;
+            if (["javascript", "cpp", "python"].includes(draft.language)) {
+                languageInput.value = draft.language;
+            }
             if (typeof draft.description === "string") {
                 descriptionInput.value = draft.description;
             }
@@ -104,8 +170,9 @@
             nameInput.value = bot.name || "";
             descriptionInput.value = bot.description || "";
             codeInput.value = bot.sourceCode || "";
-            languageInput.value = "javascript";
+            languageInput.value = bot.language || "javascript";
             setVisibility(Boolean(bot.isPublic));
+            updateEditorLanguage();
             updateCodeStats();
         } catch (error) {
             showMessage("Không thể tải bot: " + error.message, "error");
@@ -122,7 +189,7 @@
         setBusy(testButton, true, "Đang kiểm tra...");
         try {
             const response = await window.api.post("/submissions", {
-                language: languageInput.value || "javascript",
+                language: languageInput.value,
                 sourceCode: codeInput.value
             });
             const submission = response?.data?.submission;
@@ -169,7 +236,7 @@
 
         const payload = {
             name: nameInput.value.trim(),
-            language: "javascript",
+            language: languageInput.value,
             description: descriptionInput.value.trim(),
             sourceCode: codeInput.value,
             isPublic: getVisibility()
@@ -208,6 +275,11 @@
         codeInput.focus();
     });
     testButton.addEventListener("click", testCode);
+    languageInput.addEventListener("change", () => {
+        updateEditorLanguage();
+        fillStarterCodeIfEmpty();
+        updateCodeStats();
+    });
     codeInput.addEventListener("input", updateCodeStats);
     form.addEventListener("submit", handleSubmit);
 
@@ -220,6 +292,7 @@
     }
 
     restoreDraft();
+    fillStarterCodeIfEmpty();
     updateCodeStats();
     loadBot();
 })();

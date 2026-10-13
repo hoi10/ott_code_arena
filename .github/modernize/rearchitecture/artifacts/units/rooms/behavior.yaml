@@ -1,0 +1,9 @@
+unit: rooms
+side_effects:
+  - {source_loc: "src/services/room-scheduler.js:1", effect: "Schedule repeated bot turns for active rooms.", must_preserve: true}
+  - {source_loc: "src/services/room.service.js:1", effect: "Persist room/player/presence/rematch state transitions.", must_preserve: true}
+branches:
+  - {source_loc: "src/routes/room.routes.js:7", condition: "authorization header present", behavior: "Apply optional authentication to room reads/presence.", must_preserve: true}
+error_paths:
+  - {source_loc: "src/controllers/room.controller.js:1", trigger: "invalid membership/password/state", outcome: "Return mapped room conflict or authorization error.", contract: "existing HTTP error mapping", must_preserve: true}
+concurrency: {model: async, tx_boundary: {source_loc: "src/services/room.service.js:1", scope: "room lifecycle operations and scheduler revision checks", isolation: "database default", must_preserve: true}}

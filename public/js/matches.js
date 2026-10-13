@@ -952,8 +952,22 @@ function renderMatch(room) {
       ];
     })
   );
-  const winner = playerNames.get(state.winnerId);
+  const winner = playerNames.get(String(state.winnerId));
   const matchStatus = document.getElementById("matchStatus");
+  const playerSideNames = new Map(
+    participants.map((participant, index) => {
+      const seat = room.players[index];
+      const username = seat?.user?.username || `Người chơi ${index + 1}`;
+      return [
+        String(participant.id),
+        `${username}${seat?.isCurrentUser ? " (Bạn)" : ""}`,
+      ];
+    })
+  );
+  document.getElementById("sideAName").textContent =
+    playerSideNames.get(String(participants[0]?.id)) || "Người chơi 1";
+  document.getElementById("sideBName").textContent =
+    playerSideNames.get(String(participants[1]?.id)) || "Người chơi 2";
   renderMatchResult(room, state, participants, playerNames);
   if (!Array.isArray(state.pieces) || !Array.isArray(state.players)) {
     matchStatus.textContent = `Trận đã dừng do lỗi khi chạy bot${
@@ -970,9 +984,9 @@ function renderMatch(room) {
     ? describeWinReason(state.winReason, winner)
     : room.status === "paused"
       ? "Trận đang tạm dừng."
-      : `Lượt ${state.turn + 1} · Đến lượt ${playerNames.get(state.currentPlayerId) || "bot"}`;
+      : `Lượt ${state.turn + 1} · Đến lượt ${playerNames.get(String(state.currentPlayerId)) || "bot"}`;
 
-  renderBoard(state, playerNames);
+  renderBoard(state, playerNames, playerSideNames);
   renderHistory(state, playerNames);
   const isPlayer = room.isPlayer;
   const isRunning = room.status === "running";
@@ -1050,10 +1064,15 @@ function renderMatchResult(room, state, participants, playerNames) {
   }
 }
 
-function renderBoard(state, playerNames) {
+function renderBoard(state, playerNames, playerSideNames) {
   const board = document.getElementById("matchBoard");
   const cells = new Map();
   const lastMoves = getLastMoveByPlayer(state.history);
+  const previousPieceRects = new Map();
+  for (const token of board.querySelectorAll(".game-piece[data-piece-id]")) {
+    previousPieceRects.set(token.dataset.pieceId, token.getBoundingClientRect());
+  }
+  const hasPreviousBoard = board.dataset.hasRenderedBoard === "true";
   const playerIndexes = new Map(
     state.players.map((player, index) => [String(player.id), index])
   );
@@ -1081,24 +1100,35 @@ function renderBoard(state, playerNames) {
       cell.dataset.position = `${String.fromCharCode(97 + x)}${y + 1}`;
       if (x === 0 && y === 0) {
         cell.classList.add("home-a");
-        cell.setAttribute("aria-label", `${cell.dataset.position}, nhà chính bên A`);
+        cell.setAttribute(
+          "aria-label",
+          `${cell.dataset.position}, nhà chính của ${playerSideNames.get(String(state.players[0]?.id)) || "người chơi 1"}`
+        );
       } else if (x === state.boardSize - 1 && y === state.boardSize - 1) {
         cell.classList.add("home-b");
-        cell.setAttribute("aria-label", `${cell.dataset.position}, nhà chính bên B`);
+        cell.setAttribute(
+          "aria-label",
+          `${cell.dataset.position}, nhà chính của ${playerSideNames.get(String(state.players[1]?.id)) || "người chơi 2"}`
+        );
       }
       for (const [playerId, move] of lastMoves) {
         if (move.to.x !== x || move.to.y !== y) continue;
         const playerIndex = playerIndexes.get(playerId);
         if (playerIndex === undefined) continue;
-        const side = playerIndex === 0 ? "A" : "B";
+        const sideName =
+          playerSideNames.get(playerId) || `Người chơi ${playerIndex + 1}`;
         const labels = [cell.dataset.position];
-        if (cell.classList.contains("home-a")) labels.push("nhà chính bên A");
-        if (cell.classList.contains("home-b")) labels.push("nhà chính bên B");
-        labels.push(`nước đi gần nhất của bên ${side}`);
+        if (cell.classList.contains("home-a")) {
+          labels.push(`nhà chính của ${playerSideNames.get(String(state.players[0]?.id)) || "người chơi 1"}`);
+        }
+        if (cell.classList.contains("home-b")) {
+          labels.push(`nhà chính của ${playerSideNames.get(String(state.players[1]?.id)) || "người chơi 2"}`);
+        }
+        labels.push(`nước đi gần nhất của ${sideName}`);
         cell.classList.add("last-move");
         cell.classList.add(playerIndex === 0 ? "last-move-a" : "last-move-b");
-        cell.dataset.lastMovePlayer = side;
-        cell.title = `Nước đi gần nhất của bên ${side}: ${move.pieceId} đến ${cell.dataset.position}`;
+        cell.dataset.lastMovePlayer = sideName;
+        cell.title = `Nước đi gần nhất của ${sideName}: ${move.pieceId} đến ${cell.dataset.position}`;
         cell.setAttribute("aria-label", labels.join(", "));
       }
       cells.set(`${x},${y}`, cell);
@@ -1110,13 +1140,41 @@ function renderBoard(state, playerNames) {
     const cell = cells.get(`${piece.x},${piece.y}`);
     if (!cell) continue;
     const token = document.createElement("span");
+    token.dataset.pieceId = String(piece.id);
     token.className =
       `game-piece ${piece.ownerId === state.players[0].id ? "side-a" : "side-b"} type-${piece.type}`;
     token.textContent = formatPieceType(piece.type);
     token.title =
-      `${playerNames.get(piece.ownerId) || "Bot"} · ${formatPieceType(piece.type)} · ${cell.dataset.position}`;
+      `${playerNames.get(String(piece.ownerId)) || "Bot"} · ${formatPieceType(piece.type)} · ${cell.dataset.position}`;
     cell.append(token);
+    const previousRect = previousPieceRects.get(token.dataset.pieceId);
+    if (
+      hasPreviousBoard &&
+      previousRect &&
+      typeof token.animate === "function" &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      const nextRect = token.getBoundingClientRect();
+      const offsetX = previousRect.left - nextRect.left;
+      const offsetY = previousRect.top - nextRect.top;
+      if (Math.abs(offsetX) > 1 || Math.abs(offsetY) > 1) {
+        token.animate(
+          [
+            {
+              transform: `translate(${offsetX}px, ${offsetY}px) scale(0.88)`,
+              opacity: 0.78,
+            },
+            { transform: "translate(0, 0) scale(1)", opacity: 1 },
+          ],
+          {
+            duration: 460,
+            easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+          }
+        );
+      }
+    }
   }
+  board.dataset.hasRenderedBoard = "true";
 }
 
 function getLastMoveByPlayer(history) {
@@ -1154,7 +1212,7 @@ function renderHistory(state, playerNames) {
       ? `${turn.action.pieceId} → ${turn.action.to.name || `${String.fromCharCode(97 + turn.action.to.x)}${turn.action.to.y + 1}`}`
       : `Nước đi không hợp lệ: ${describeMoveError(turn.reason)}`;
     item.textContent =
-      `#${turn.turn} ${playerNames.get(turn.playerId) || "Bot"}: ${move}`;
+      `#${turn.turn} ${playerNames.get(String(turn.playerId)) || "Bot"}: ${move}`;
     list.append(item);
   }
   if (list.children.length === 0) {
@@ -1248,9 +1306,11 @@ function setBusy(id, isBusy, label) {
 function showPageMessage(message, type = "info") {
   const element = document.getElementById("pageMessage");
   element.textContent = message;
+  element.hidden = false;
   element.className = `create-bot-message visible ${type}`;
   window.clearTimeout(showPageMessage.timer);
   showPageMessage.timer = window.setTimeout(() => {
     element.classList.remove("visible");
+    element.hidden = true;
   }, 6_000);
 }

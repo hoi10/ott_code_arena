@@ -1,10 +1,12 @@
 const { z } = require("zod");
 
+const botLanguageSchema = z.enum(["javascript", "cpp", "python"]);
+
 const createBotSchema = z.object({
   name: z.string().trim().min(2).max(100),
   description: z.string().trim().max(500).optional().nullable(),
   sourceCode: z.string().min(1).max(100000),
-  language: z.literal("javascript").default("javascript"),
+  language: botLanguageSchema.default("javascript"),
   isPublic: z.boolean().default(false),
 });
 
@@ -13,7 +15,7 @@ const updateBotSchema = z
     name: z.string().trim().min(2).max(100).optional(),
     description: z.string().trim().max(500).optional().nullable(),
     sourceCode: z.string().min(1).max(100000).optional(),
-    language: z.literal("javascript").optional(),
+    language: botLanguageSchema.optional(),
     isActive: z.boolean().optional(),
     isPublic: z.boolean().optional(),
   })
@@ -23,6 +25,7 @@ const updateBotSchema = z
 
 const testBotSchema = z.object({
   sourceCode: z.string().min(1).max(100000),
+  language: botLanguageSchema.default("javascript"),
 });
 
 module.exports = {
